@@ -95,6 +95,13 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
     fun curseBeans() = (if (g.won) 0 else 1) + if (g.hex > g.year) 1 else 0
     fun part(n: Double) = ceil(g.money * n).toInt()
 
+    // ---- marks for chains of events: set now, read years later
+    fun flag(k: String, v: Int = g.year) { g.flags[k] = v }
+    fun unflag(k: String) { g.flags.remove(k) }
+    fun flagged(k: String) = k in g.flags
+    /** Years since [k] was set (with the default value), or null if it isn't set. */
+    fun since(k: String) = g.flags[k]?.let { g.year - it }
+
     fun look(male: Boolean) = Look(pick(Looks.SKIN), pick(Looks.HAIR), pick(if (male) Looks.CLOTH_M else Looks.CLOTH_F), pick(Looks.KERCH))
     fun rstats(lo: Int, hi: Int) = IntArray(6) { ri(lo, hi) }
     fun pickName(male: Boolean, avoid: Set<String> = emptySet()): String {
@@ -327,7 +334,7 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
         var r = rnd.nextDouble() * pool.sumOf { it.first.w }
         for ((e, f) in pool) {
             r -= e.w
-            if (r <= 0) { g.recent.add(e.id); if (g.recent.size > 7) g.recent.removeAt(0); return Occ(e, hd, f.x, f.s) }
+            if (r <= 0) { g.recent.add(e.id); if (g.recent.size > 14) g.recent.removeAt(0); return Occ(e, hd, f.x, f.s) }
         }
         return null
     }

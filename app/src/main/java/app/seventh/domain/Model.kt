@@ -97,4 +97,6 @@ class Game(
     var head: Int = 0,
     var foundName: String = "",
     var overTxt: String = "",
+    /** Marks that events leave for later ones to read: a key and, usually, the year it was set. Chains and the family's path live here. */
+    val flags: MutableMap<String, Int> = mutableMapOf(),
 )
