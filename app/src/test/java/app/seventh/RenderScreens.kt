@@ -24,7 +24,9 @@ import kotlin.random.Random
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [34], qualifiers = "ru-w393dp-h851dp-xxhdpi")
-abstract class ScreensBase(private val land: String) {
+abstract class ScreensBase(private val land: String, private val ru: Boolean = true) {
+    @org.junit.Before fun lang() { app.seventh.domain.Lang.ru = ru }
+
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
     private val out = File(System.getProperty("render.out") ?: "build/art", "screens").apply { mkdirs() }
 
@@ -64,10 +66,10 @@ abstract class ScreensBase(private val land: String) {
         }
     }
 
-    private fun both(name: String, setup: GameState.() -> Unit = {}) = shot("$land-$name", state(), setup)
+    private fun both(name: String, setup: GameState.() -> Unit = {}) = shot("$land${if (ru) "" else "-en"}-$name", state(), setup)
 
-    @Test fun lands() = shot("$land-lands", state()) { sheet = Sheet.Lands }
-    @Test fun intro() = shot("$land-0-intro", GameState(SaveStore(ApplicationProvider.getApplicationContext()))) { newGame(land) }
+    @Test fun lands() = shot("$land${if (ru) "" else "-en"}-lands", state()) { sheet = Sheet.Lands }
+    @Test fun intro() = shot("$land${if (ru) "" else "-en"}-0-intro", GameState(SaveStore(ApplicationProvider.getApplicationContext()))) { newGame(land) }
     @Test fun home() = both("1-home")
     @Test fun event() = both("2-event") { openEvent(true) }
     @Test fun bag() = both("3-bag") { openEvent(true); val s = sheet as Sheet.Event; choose(s, s.opts.first { it.roll != null && it.cost <= e.g.money }) }
@@ -88,3 +90,8 @@ abstract class ScreensBase(private val land: String) {
 class ScreensRus : ScreensBase("rus")
 class ScreensEu : ScreensBase("eu")
 class ScreensJp : ScreensBase("edo")
+
+@Config(sdk = [34], qualifiers = "en-w393dp-h851dp-xxhdpi")
+class ScreensRusEn : ScreensBase("rus", false)
+@Config(sdk = [34], qualifiers = "en-w393dp-h851dp-xxhdpi")
+class ScreensJpEn : ScreensBase("edo", false)

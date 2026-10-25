@@ -143,7 +143,7 @@ fun Engine.treeData(ctx: Context): TreeData {
         val par = listOf(person(p.father), person(p.mother)).firstOrNull { it != null && it.blood && px.containsKey(it.id) } ?: return@mapNotNull null
         TreeEdge(par.id, p.id, p.id in main)
     }
-    val num = ResourcesCompat.getFont(ctx, when (g.land) { "eu" -> R.font.alegreya_sc_extrabold; "edo" -> R.font.zen_old_mincho_black; else -> R.font.ruslan_display })!!
+    val num = ResourcesCompat.getFont(ctx, when (g.land) { "eu" -> R.font.alegreya_sc_extrabold; "edo" -> R.font.zen_old_mincho; else -> R.font.ruslan_display })!!
     val lab = ResourcesCompat.getFont(ctx, when (g.land) { "eu" -> R.font.alegreya; "edo" -> R.font.zen_old_mincho; else -> R.font.kurale })!!
     return TreeData(w, h, rows, List(rows) { y(root.id) - it * rh }, root.id, nodes, edges, g.won, g.year % 4 == 2, num, lab)
 }

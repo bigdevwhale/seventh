@@ -383,17 +383,17 @@ internal fun Ctx.flames(x: Double, y: Double, w: Double, h: Double, f: Double) {
         for (k in 0 until 3) { val ph = (f * 0.8 + k / 3.0 + x * 0.013) % 1; dot(x + sin(ph * 9 + k) * w, y - h - ph * h * 1.2, 0.7 * (1 - ph) + 0.2, YEL) }
     }
 }
-internal fun Ctx.bear(x: Double, y: Double, f: Double) {
-    val fur = hex(0xFF7A4A26); save(); translate(x, y)
+internal fun Ctx.bear(x: Double, y: Double, f: Double, fur: Int = hex(0xFF7A4A26), belly: Int = hex(0xFFA8703C), snout: Int = hex(0xFFB07A48)) {
+    save(); translate(x, y)
     sh(pt(-2.0, -9.0, -4.0, 0.0, 1.0, 0.0, 2.0, -6.0), fur); sh(pt(3.0, -9.0, 4.0, 0.0, 9.0, 0.0, 8.0, -7.0), fur)
     translate(0.0, sin(f * 1.8) * 0.6)
     sh(pt(-6.0, -10.0, -8.0, -20.0, -5.0, -28.0, 2.0, -30.0, 8.0, -24.0, 9.0, -12.0, 4.0, -7.0), fur, sm = true)
     hatch(pt(2.0, -30.0, 8.0, -24.0, 9.0, -12.0, 4.0, -7.0, 3.0, -20.0), sm = true, a = 0.3)
-    el(0.0, -17.0, 3.4, 6.0, hex(0xFFA8703C), 0.4)
+    el(0.0, -17.0, 3.4, 6.0, belly, 0.4)
     sh(pt(-5.0, -26.0, -11.0, -31.0, -13.4, -29.4, -8.0, -22.6), fur, sm = true)
     for (i in 0 until 3) ln(pt(-13.2 + i * 0.9, -31 + i * 0.7, -15 + i * 0.9, -31.4 + i * 0.7), WHT, 0.45)
     el(-1.0, -35.6, 1.4, 1.4, fur, 0.45); el(-5.0, -35.8, 1.4, 1.4, fur, 0.45)
-    el(-3.0, -32.0, 4.6, 4.0, fur); el(-6.8, -30.8, 2.6, 1.7, hex(0xFFB07A48), 0.5)
+    el(-3.0, -32.0, 4.6, 4.0, fur); el(-6.8, -30.8, 2.6, 1.7, snout, 0.5)
     dot(-9.0, -31.2, 0.7, INK); dot(-4.6, -33.0, 0.6, INK); ln(pt(-8.2, -29.5, -6.4, -29.7), KIN, 0.5); restore()
 }
 internal fun Ctx.wolf(x: Double, y: Double, f: Double, flip: Boolean, eyesOnly: Boolean = false) {

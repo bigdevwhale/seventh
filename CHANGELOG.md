@@ -10,4 +10,5 @@ then close it like any HTML comment. The release notes carry it, and the chat bo
 
 ### Added
 - The game: a family cursed to the seventh generation, bean-bag odds, traits and tempers, stones on the soul, succession, the family tree, the chronicle, the family legacy.
-- Two lands: Rus (1690–1950, lubok) and medieval Europe (1180–1460, illuminated manuscript), each with its own events and history.
+- Three lands: Rus (1690–1950, lubok), medieval Europe (1180–1460, illuminated manuscript) and Japan (1662–1950, ukiyo-e), each with its own events and history.
+- English and Russian; the menu switches the language.

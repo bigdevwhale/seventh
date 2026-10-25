@@ -78,6 +78,38 @@ internal fun Ctx.relic(ic: String) {
             for ((x, y) in listOf(5.4 to 5.4, 10.6 to 5.4, 8.0 to 10.4)) { sh(pt(x, y - 2.4, x + 0.8, y, x, y + 1.6, x - 0.8, y), YEL, 0.3, false); dot(x - 1.3, y + 0.4, 0.6, YEL); dot(x + 1.3, y + 0.4, 0.6, YEL) }
         }
         "crossr" -> { quad(6.6, 1.5, 2.8, 13.0, KIN, 0.6); quad(2.5, 5.0, 11.0, 2.8, KIN, 0.6); dot(8.0, 6.4, 0.8, YEL) }
+        "katana" -> {
+            ln(pt(4.6, 11.4, 9.2, 6.6, 14.2, 2.0), INK, 1.9, true); ln(pt(4.6, 11.4, 9.2, 6.6, 14.2, 2.0), hex(0xFFDFE4E8), 1.0, true)
+            ln(pt(6.6, 9.8, 9.6, 6.6, 13.4, 3.0), hex(0xFFA9B2BA), 0.3, true)
+            el(4.8, 11.2, 1.9, 1.9, hex(0xFF3A3530), 0.45); dot(4.8, 11.2, 0.5, OCH)
+            ln(pt(1.4, 14.8, 4.0, 12.0), INK, 2.0); ln(pt(1.4, 14.8, 4.0, 12.0), hex(0xFFE8E0CC), 1.1)
+            for (i in 0 until 3) dot(1.9 + i * 0.75, 14.2 - i * 0.8, 0.3, INK)
+        }
+        "omamori" -> {
+            val B = pt(4.4, 15.0, 4.4, 5.6, 5.4, 4.0, 8.0, 3.4, 10.6, 4.0, 11.6, 5.6, 11.6, 15.0)
+            sh(B, KIN2, 0.6, sm = false)
+            inside(B) { for (j in 0 until 6) for (i in 0 until 4) dot(5.0 + i * 2.0 + (j % 2), 5.0 + j * 2.0, 0.35, OCH) }
+            quad(6.2, 7.0, 3.6, 6.4, WHT, 0.35, false)
+            ln(pt(8.0, 8.0, 8.0, 12.4), INK, 0.45); ln(pt(7.0, 9.4, 9.0, 9.2), INK, 0.4); ln(pt(7.2, 11.0, 8.8, 11.4), INK, 0.35)
+            ln(pt(6.6, 3.8, 6.0, 1.6, 8.0, 2.4, 10.0, 1.6, 9.4, 3.8), OCH, 0.6, true); dot(8.0, 2.8, 0.7, OCH)
+        }
+        "fan" -> {
+            val p = Pb()
+            for (i in 0..12) { val a = -PI * (0.86 - i * 0.06); p.add(8 + cos(a) * 7.4, 13.4 + sin(a) * 11.2) }
+            for (i in 12 downTo 0) { val a = -PI * (0.86 - i * 0.06); p.add(8 + cos(a) * 2.6, 13.4 + sin(a) * 3.8) }
+            val F = p.arr(); sh(F, hex(0xFFF3E9D2), 0.6, sm = false)
+            inside(F) { quad(0.0, 6.6, 16.0, 2.4, BLU, 0.0, false); dot(8.0, 4.4, 1.6, KIN) }
+            for (i in 0..12 step 2) { val a = -PI * (0.86 - i * 0.06); ln(pt(8 + cos(a) * 2.6, 13.4 + sin(a) * 3.8, 8 + cos(a) * 7.4, 13.4 + sin(a) * 11.2), INK, 0.25) }
+            for (i in 0..12 step 2) { val a = -PI * (0.86 - i * 0.06); ln(pt(8.0, 14.4, 8 + cos(a) * 2.6, 13.4 + sin(a) * 3.8), BRN2, 0.5) }
+            dot(8.0, 14.2, 0.7, INK)
+        }
+        "inro" -> {
+            ln(pt(8.0, 5.0, 8.0, 1.2), KIN, 0.5); el(8.0, 3.4, 0.9, 0.9, KIN2, 0.3); el(8.0, 1.2, 1.6, 1.0, BRN, 0.35)
+            val B = pt(4.6, 5.6, 5.4, 4.8, 10.6, 4.8, 11.4, 5.6, 11.4, 13.6, 10.6, 14.6, 5.4, 14.6, 4.6, 13.6)
+            sh(B, hex(0xFF1E1A1C), 0.6)
+            for (yy in doubleArrayOf(7.4, 10.0, 12.4)) ln(pt(4.6, yy, 11.4, yy), OCH, 0.3)
+            ln(pt(5.8, 11.6, 7.2, 9.0, 8.6, 10.4, 10.2, 8.2), OCH, 0.45, true); dot(9.4, 6.2, 0.9, KIN)
+        }
         else -> el(8.0, 8.0, 5.0, 5.0, OCH)
     }
     paper(0.7)

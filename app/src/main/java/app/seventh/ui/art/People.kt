@@ -25,7 +25,9 @@ internal fun npc(kind: String, seed: Int): Fig = npcs.getOrPut(kind + seed) {
     )
 }
 
-internal fun Ctx.person(L: Fig, kidFace: Boolean = false) { if (eu) with(Eu) { euPerson(L, kidFace) } else rusPerson(L, kidFace) }
+internal fun Ctx.person(L: Fig, kidFace: Boolean = false) {
+    if (edo) with(Jp) { style { edoPerson(L, kidFace) } } else if (eu) with(Eu) { euPerson(L, kidFace) } else rusPerson(L, kidFace)
+}
 
 private val ghostP = Paint().apply { alpha = 178 }
 
@@ -186,14 +188,14 @@ internal fun Ctx.portrait(p: Fig, bg: PBg, faded: Boolean, x0: Double, y0: Doubl
     val kid = p.age < 14
     save(); translate(x0, y0); beginPath(); if (round) circle(12.0, 12.0, 12.0) else rect(0.0, 0.0, 24.0, 24.0); clip()
     if (faded) layer(0.0, 0.0, 24.0, 24.0, sepiaP)
-    if (eu) with(Eu) { pbg(bg) } else {
+    if (edo) edoPbg(bg) else if (eu) with(Eu) { pbg(bg) } else {
         fillRect(0.0, 0.0, 24.0, 24.0, when (bg) { PBg.HEAD -> PBG_HEAD; PBg.BLOOD -> PBG_BLOOD; PBg.INLAW -> PBG_INLAW })
         fade(0.45) {
             for (i in 0 until 14) { val an = i / 14.0 * 6.283; dot(12 + cos(an) * 10.4, 10.5 + sin(an) * 10.4, 0.65, WHT) }
             for (i in 0 until 14) { val an = (i + 0.5) / 14 * 6.283; ln(pt(12 + cos(an) * 7.8, 10.5 + sin(an) * 7.8, 12 + cos(an) * 9.4, 10.5 + sin(an) * 9.4), WHT, 0.5) }
         }
     }
-    val s = 1.5; save(); translate(12.0, (if (kid) 11.4 else 10.6) + 33.5 * s); scale(s, s); person(p, kid); restore()
+    val s = 1.5; save(); translate(12.0, (if (kid) 11.4 else 10.6) + (if (edo && p.sex == 'f' && !kid) 1.8 else 0.0) + 33.5 * s); scale(s, s); person(p, kid); restore()
     if (faded) restore()
     paper(0.6, 0.0, 0.0, 24.0, 24.0); restore()
 }

@@ -33,6 +33,8 @@ class RenderArt {
     private val rusKeys = listOf("forest", "fire", "fair", "road", "field", "field_dry", "klad", "meja", "village", "church", "interior", "wedding",
         "night_int", "tavern", "winter", "war", "plague", "barin", "dream", "dawn", "nonsense")
     private val euKeys = rusKeys.dropLast(1) + listOf("pyre", "nonsense")
+    private val edoKeys = rusKeys.dropLast(1) + listOf("inari", "nonsense")
+    private val lands = listOf("rus", "eu", "edo")
 
     private fun person(sex: Char, age: Int, seed: Int, kind: String = "") = Fig(
         sex = sex, age = age, skin = Looks.SKIN[seed % 3], hair = Looks.hairAt(Looks.HAIR[seed % 6], age),
@@ -54,7 +56,7 @@ class RenderArt {
     private fun font(id: Int): Typeface = ResourcesCompat.getFont(RuntimeEnvironment.getApplication(), id)!!
 
     @Test fun scenes() {
-        for ((land, keys) in listOf("rus" to rusKeys, "eu" to euKeys)) {
+        for ((land, keys) in listOf("rus" to rusKeys, "eu" to euKeys, "edo" to edoKeys)) {
             save("scenes_$land.png", sheet(3, 528, 300, keys.size) { c, i ->
                 Art.scene(c, 528f, land, keys[i], SceneData(hero = hero, spouse = wife, other = kid, family = family, year = 1702), 1f)
             })
@@ -63,7 +65,7 @@ class RenderArt {
 
     @Test fun portraits() {
         val ages = listOf(3, 9, 12, 17, 25, 40, 60, 75)
-        for (land in listOf("rus", "eu")) {
+        for (land in lands) {
             val cells = mutableListOf<(Canvas) -> Unit>()
             for (bg in PBg.values()) for (sex in listOf('m', 'f')) for (a in ages) cells += { c -> Art.portrait(c, 120f, land, person(sex, a, a + (if (sex == 'f') 100 else 0)), bg, false) }
             for (sex in listOf('m', 'f')) for (a in ages) cells += { c -> Art.portrait(c, 120f, land, person(sex, a, a + 3), PBg.BLOOD, a % 2 == 1 || a > 50, round = a < 20) }
@@ -73,16 +75,16 @@ class RenderArt {
 
     @Test fun bagThreadRelics() {
         val beans = "wwwwwwwbbbbbr".toList()
-        save("bag.png", sheet(2, 480, 224, 4) { c, i ->
-            Art.bag(c, 480f, if (i % 2 == 0) "rus" else "eu", beans, if (i < 2) 1.5f else 0f, 3, 'w', if (i < 2) 0.5f else 1f)
+        save("bag.png", sheet(3, 480, 224, 6) { c, i ->
+            Art.bag(c, 480f, lands[i % 3], beans, if (i < 3) 1.5f else 0f, 3, if (i == 5) 'r' else 'w', if (i < 3) 0.5f else 1f)
         })
         save("thread.png", sheet(1, 348, 54, 3) { c, i -> Art.thread(c, 348f, i * 3 + 1, i == 2) })
-        val icons = listOf("axe", "sword", "icon", "medal", "ring", "reliq", "shell", "lily", "crossr", "x")
-        save("relics.png", sheet(10, 96, 96, icons.size) { c, i -> Art.relic(c, 96f, icons[i]) })
+        val icons = listOf("axe", "sword", "icon", "medal", "ring", "reliq", "shell", "lily", "crossr", "katana", "omamori", "fan", "inro", "x")
+        save("relics.png", sheet(14, 96, 96, icons.size) { c, i -> Art.relic(c, 96f, icons[i]) })
     }
 
     @Test fun homes() {
-        for (land in listOf("rus", "eu")) {
+        for (land in lands) {
             save("home_$land.png", sheet(5, 352, 192, 25) { c, i ->
                 val dvor = i / 5; val s = i % 5
                 Art.home(c, 352f, land, HomeData(dvor = dvor, season = s % 4, over = s == 4, family = family, seed = dvor + 1, year = 1700 + s), 2f)
@@ -106,10 +108,10 @@ class RenderArt {
             node(7, 0f, 3, person('f', 12, 7), Ring.ALIVE, true, true, name = "Прасковья", years = "1750–"),
         )
         val edges = listOf(TreeEdge(1, 2, true), TreeEdge(1, 3, false), TreeEdge(2, 4, true), TreeEdge(2, 5, false), TreeEdge(2, 6, false), TreeEdge(4, 7, false))
-        for (land in listOf("rus", "eu")) {
+        for (land in lands) {
             val d = TreeData(W, H, rows, (0 until rows).map { Y(it) }, 1, nodes, edges, won = false, autumn = land == "eu",
-                numeralFace = font(if (land == "eu") R.font.alegreya_sc_extrabold else R.font.ruslan_display),
-                labelFace = font(if (land == "eu") R.font.alegreya else R.font.kurale))
+                numeralFace = font(if (land == "rus") R.font.ruslan_display else R.font.alegreya_sc_extrabold),
+                labelFace = font(if (land == "rus") R.font.kurale else R.font.alegreya))
             val b = Bitmap.createBitmap((W * 2).toInt(), (H * 2).toInt(), Bitmap.Config.ARGB_8888)
             Art.tree(Canvas(b), 2f, land, d)
             save("tree_$land.png", b)
@@ -118,7 +120,7 @@ class RenderArt {
 
     @Test fun timing() {
         val b = Bitmap.createBitmap(1000, 570, Bitmap.Config.ARGB_8888); val c = Canvas(b)
-        for ((land, keys) in listOf("rus" to rusKeys, "eu" to euKeys)) {
+        for ((land, keys) in listOf("rus" to rusKeys, "eu" to euKeys, "edo" to edoKeys)) {
             val d = SceneData(hero = hero, spouse = wife, other = kid, family = family, year = 1702)
             val ops = keys.map { k -> Art.scene(c, 1000f, land, k, d, 0f); "$k=${Art.lastOps}" }
             println("ops $land: $ops")

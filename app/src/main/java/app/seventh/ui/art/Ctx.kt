@@ -31,7 +31,12 @@ internal class Ctx {
     var LW = 0.75
     var REG = true
     var INK = INK0
-    var eu = false
+    /** "rus", "eu" or "edo". */
+    var land = "rus"
+    val eu get() = land == "eu"
+    val edo get() = land == "edo"
+    /** What edo commoners wear on their heads in this picture: 0 nothing, 1 straw kasa, 2 kasa and mino raincoat. */
+    var hat = 0
     var year = 1700
     var alpha = 1.0
     var mode = SRC
@@ -60,7 +65,7 @@ internal class Ctx {
 
     fun begin(c: Canvas, w: Double, h: Double, px: Double) {
         cv = c; W = w; H = h; ops = 0; k = px / w; alpha = 1.0; mode = SRC; sp = 0
-        J = 0.32; LW = 0.75; REG = true; INK = INK0
+        J = 0.32; LW = 0.75; REG = true; INK = INK0; hat = 0
         sp2.pathEffect = null
         c.save(); c.scale(k.toFloat(), k.toFloat())
     }
@@ -86,11 +91,11 @@ internal class Ctx {
     fun circle(x: Double, y: Double, r: Double) = path.addCircle(x.toFloat(), y.toFloat(), r.toFloat(), Path.Direction.CW)
     fun oval(x: Double, y: Double, rx: Double, ry: Double) = path.addOval((x - rx).toFloat(), (y - ry).toFloat(), (x + rx).toFloat(), (y + ry).toFloat(), Path.Direction.CW)
     /** Canvas2D arc, clockwise from a0 to a1 (radians). */
-    fun arc(x: Double, y: Double, r: Double, a0: Double, a1: Double) {
+    fun arc(x: Double, y: Double, r: Double, a0: Double, a1: Double, move: Boolean = path.isEmpty) {
         val sweep = min(a1 - a0, 2 * PI)
         if (sweep >= 2 * PI - 1e-6) { circle(x, y, r); return }
         rf.set((x - r).toFloat(), (y - r).toFloat(), (x + r).toFloat(), (y + r).toFloat())
-        path.arcTo(rf, (a0 * 180 / PI).toFloat(), (sweep * 180 / PI).toFloat(), path.isEmpty)
+        path.arcTo(rf, (a0 * 180 / PI).toFloat(), (sweep * 180 / PI).toFloat(), move)
     }
 
     private fun prep(p: Paint, col: Int) {
@@ -100,6 +105,7 @@ internal class Ctx {
         p.xfermode = when (mode) { MUL -> xfMul; ADD -> xfAdd; ATOP -> xfAtop; else -> null }
     }
     fun fill(col: Int) { prep(fp, col); cv.drawPath(path, fp) }
+    fun fillS(s: Shader) { prep(fp, -0x1000000); fp.shader = s; cv.drawPath(path, fp); fp.shader = null }
     fun stroke(col: Int, w: Double) { prep(sp2, col); sp2.strokeWidth = w.toFloat(); cv.drawPath(path, sp2) }
     fun fillRect(x: Double, y: Double, w: Double, h: Double, col: Int) {
         prep(fp, col); cv.drawRect(x.toFloat(), y.toFloat(), (x + w).toFloat(), (y + h).toFloat(), fp)
