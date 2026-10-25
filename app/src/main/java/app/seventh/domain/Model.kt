@@ -45,6 +45,8 @@ class Person(
     var from: String = "",
     var epi: String = "",
     var squire: Boolean = false,
+    /** Left to be adopted into another house: gone from the line like a monk, but not in a monastery. */
+    var adopted: Boolean = false,
     /** Dowry (+) or bride price (−) of a match candidate. */
     var dw: Int = 0,
 ) {

@@ -87,3 +87,4 @@ abstract class ScreensBase(private val land: String) {
 
 class ScreensRus : ScreensBase("rus")
 class ScreensEu : ScreensBase("eu")
+class ScreensJp : ScreensBase("edo")

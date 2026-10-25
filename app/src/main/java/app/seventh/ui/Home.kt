@@ -54,6 +54,7 @@ object Help {
 }
 
 fun Engine.statusOf(p: Person): String = when {
+    p.adopted -> t("принят в другой дом", "adopted into another house")
     p.monk -> t("в монастыре", "in a monastery")
     p.died != null -> "${p.born}–${p.died}, ${p.cause}"
     p.away != null -> t("в отъезде", "away")

@@ -105,6 +105,6 @@ abstract class Land(val id: String) {
 }
 
 object Lands {
-    val all: List<Land> by lazy { listOf(Rus, Europe) }
+    val all: List<Land> by lazy { listOf(Rus, Europe, Japan) }
     fun of(id: String): Land = all.firstOrNull { it.id == id } ?: Rus
 }
