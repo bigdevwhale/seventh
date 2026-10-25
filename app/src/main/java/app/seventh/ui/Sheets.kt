@@ -393,7 +393,7 @@ private class LandCard(val id: String, val name: String, val years: String, val 
 private fun LandsScreen(st: GameState) {
     val P = LocalPal.current
     val lands = listOf(
-        LandCard("rus", t("Русь", "Rus"), "1700 — 1950", t("лубок", "lubok print"), t("Изба и барин, рекрутчина, воля, колхоз. Нищенка проклинает род до седьмого колена.", "The izba and the barin, the recruit levy, emancipation, the collective farm. A beggar woman curses the family to the seventh generation."), true),
+        LandCard("rus", t("Русь", "Rus"), "1690 — 1950", t("лубок", "lubok print"), t("Изба и барин, рекрутчина, воля, колхоз. Нищенка проклинает род до седьмого колена.", "The izba and the barin, the recruit levy, emancipation, the collective farm. A beggar woman curses the family to the seventh generation."), true),
         LandCard("eu", t("Средневековая Европа", "Medieval Europe"), "1180 — 1460", t("книжная миниатюра", "illuminated manuscript"), t("Сеньор и виллан, крестовые походы, Чёрная смерть, Жакерия, Дева. Сожжённая травница проклинает род.", "Seigneur and villein, crusades, the Black Death, the Jacquerie, the Maid. A herbwoman on the pyre curses the family."), true),
         LandCard("edo", t("Япония", "Japan"), "1660 — 1950", t("гравюра укиё-э", "ukiyo-e print"), t("Рисовая подать даймё, паломничество в Исэ, чёрные корабли, Мэйдзи. Белая лиса из святилища Инари проклинает род.", "The daimyo's rice tax, the pilgrimage to Ise, the Black Ships, Meiji. A white fox from an Inari shrine curses the family."), true),
         LandCard("scot", t("Шотландия", "Scotland"), "1690 — 1950", t("книжная гравюра", "book engraving"), t("Кланы и якобиты, расчистка земель, пароход в Америку.", "Clans and Jacobites, the Clearances, a steamer to America."), false),
