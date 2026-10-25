@@ -169,7 +169,8 @@ fun HomeScreen(st: GameState) {
 private fun KV(label: String, help: (() -> Unit)? = null, right: @Composable () -> Unit) {
     val P = LocalPal.current
     Row(Modifier.fillMaxWidth().then(if (help != null) Modifier.clickable(onClick = help) else Modifier).padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, Modifier.weight(1f, fill = false), style = P.b(15.sp)); if (help != null) Q(); Grow(); right()
+        Row(Modifier.weight(1f).padding(end = 8.dp), verticalAlignment = Alignment.CenterVertically) { Text(label, Modifier.weight(1f, fill = false), style = P.b(15.sp)); if (help != null) Q() }
+        right()
     }
 }
 

@@ -98,5 +98,6 @@
     <string name="about">Об игре</string>
     <string name="about_text">Земель: %1$d, событий: %2$d, все картинки нарисованы кодом. Без рекламы, без аккаунта, без интернета.</string>
     <string name="about_version">Версия %1$s · шрифты Ruslan Display, Kurale, Alegreya и Zen Old Mincho (OFL) · исходники на GitHub</string>
+    <string name="other_land">← Выбрать другую землю</string>
     <string name="lang_other">English</string>
 </resources>

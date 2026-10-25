@@ -97,3 +97,9 @@ class ScreensJp : ScreensBase("edo")
 class ScreensRusEn : ScreensBase("rus", false)
 @Config(sdk = [34], qualifiers = "en-w393dp-h851dp-xxhdpi")
 class ScreensJpEn : ScreensBase("edo", false)
+@Config(sdk = [34], qualifiers = "en-w393dp-h851dp-xxhdpi")
+class ScreensEuEn : ScreensBase("eu", false)
+
+/** The whole home screen in one tall picture, to check the cards below the fold. */
+@Config(sdk = [34], qualifiers = "ru-w393dp-h2200dp-mdpi")
+class ScreensEuTall : ScreensBase("eu")

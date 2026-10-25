@@ -98,5 +98,6 @@
     <string name="about">About the game</string>
     <string name="about_text">%1$d lands and %2$d events, every picture drawn in code. No ads, no account, no internet.</string>
     <string name="about_version">Version %1$s · Ruslan Display, Kurale, Alegreya and Zen Old Mincho fonts (OFL) · source on GitHub</string>
+    <string name="other_land">← Choose another land</string>
     <string name="lang_other">Русский язык</string>
 </resources>

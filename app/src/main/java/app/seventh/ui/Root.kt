@@ -71,6 +71,7 @@ fun SeventhRoot(st: GameState) {
         BackHandler(st.sheet is Sheet.Card || st.sheet is Sheet.HowTo || st.sheet is Sheet.Menu) { st.close() }
         BackHandler(st.sheet == Sheet.None && st.tab != 0) { st.tab = 0 }
         BackHandler(st.sheet == Sheet.Lands && st.engine != null) { st.close() }
+        BackHandler(st.sheet == Sheet.Intro) { st.sheet = Sheet.Lands }
     }
 }
 

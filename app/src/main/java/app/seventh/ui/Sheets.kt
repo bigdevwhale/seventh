@@ -335,6 +335,8 @@ private fun Intro(st: GameState) {
     Btn(stringResource(R.string.accept_lot), Modifier.fillMaxWidth(), big = true) { st.close() }
     Gap(8.dp)
     Btn(stringResource(R.string.how_to), Modifier.fillMaxWidth()) { st.sheet = Sheet.HowTo(Sheet.Intro) }
+    Gap(8.dp)
+    Btn(stringResource(R.string.other_land), Modifier.fillMaxWidth(), small = true) { st.sheet = Sheet.Lands }
 }
 
 @Composable
