@@ -80,9 +80,9 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
     fun spouseOf(p: Person) = person(p.spouse)
     fun married(p: Person) = spouseOf(p)?.let { alive(it) && !it.monk } == true
     fun surname(p: Person) = land.surname(g, p)
-    fun fullName(p: Person) = if (p.blood) p.name + " " + surname(p) else p.name + if (p.from.isNotEmpty()) " из " + p.from else ""
+    fun fullName(p: Person) = if (p.blood) p.name + " " + surname(p) else p.name + if (p.from.isNotEmpty()) t(" из ", " of ") + p.from else ""
     fun cap(s: String) = s.replaceFirstChar { it.uppercase() }
-    fun yrs(n: Int) = "$n " + plural(n, "год", "года", "лет")
+    fun yrs(n: Int) = if (Lang.ru) "$n " + plural(n, "год", "года", "лет") else if (n == 1) "1 year" else "$n years"
 
     // ---- the household
     fun log(t: String, k: String = "") { g.log.add(LogLine(g.year, t, k)); if (g.log.size > 600) g.log.removeAt(0) }
@@ -119,13 +119,13 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
             d++
             if (f === from || m === from) break
             c = up
-            if (c == null) return "родня"
+            if (c == null) return t("родня", "kin")
         }
         return when (d) {
-            1 -> sx(p, "сын", "дочь")
-            2 -> sx(p, "внук", "внучка")
-            3 -> sx(p, "правнук", "правнучка")
-            else -> "пра".repeat(d - 3) + sx(p, "внук", "внучка")
+            1 -> t(sx(p, "сын", "дочь"), sx(p, "son", "daughter"))
+            2 -> t(sx(p, "внук", "внучка"), sx(p, "grandson", "granddaughter"))
+            3 -> t(sx(p, "правнук", "правнучка"), sx(p, "great-grandson", "great-granddaughter"))
+            else -> t("пра".repeat(d - 3) + sx(p, "внук", "внучка"), "great-".repeat(d - 2) + sx(p, "grandson", "granddaughter"))
         }
     }
 
@@ -148,15 +148,15 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
 
     fun makeEpi(p: Person): String {
         val a = age(p)
-        if (a < 3) return sx(p, "Прожил", "Прожила") + " " + yrs(a) + "."
-        if (a < 13) return sx(p, "Прожил", "Прожила") + " " + yrs(a) + ". Не " + sx(p, "успел", "успела") + " вырасти."
+        if (a < 3) return t(sx(p, "Прожил", "Прожила") + " " + yrs(a) + ".", "Lived " + yrs(a) + ".")
+        if (a < 13) return t(sx(p, "Прожил", "Прожила") + " " + yrs(a) + ". Не " + sx(p, "успел", "успела") + " вырасти.", "Lived " + yrs(a) + ". Never grew up.")
         val tr = p.tr.filter { Traits.all[it]?.kind != TrKind.NAZH || it == "gram" || it == "pyan" }.take(3).map { tname(it, p) }
         var s = if (tr.isNotEmpty()) cap(tr.joinToString(", ")) + "." else ""
         val d = p.deeds.lastOrNull()
         s += when {
             d != null -> " " + d.t + "."
-            !p.blood -> " " + sx(p, "Вошёл", "Вошла") + " в род со стороны."
-            else -> " " + sx(p, "Жил", "Жила") + " тихо, " + sx(p, "умер", "умерла") + " в своей постели."
+            !p.blood -> " " + t(sx(p, "Вошёл", "Вошла") + " в род со стороны.", "Married into the family.")
+            else -> " " + t(sx(p, "Жил", "Жила") + " тихо, " + sx(p, "умер", "умерла") + " в своей постели.", "Lived quietly, died in " + sx(p, "his", "her") + " own bed.")
         }
         return s.trim()
     }
@@ -165,7 +165,7 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
         if (!alive(p)) return
         p.died = g.year; p.cause = cause; p.epi = makeEpi(p)
         spouseOf(p)?.let { s -> if (alive(s) && s.spouse == p.id) addTr(s, "vdov") }
-        log("${sx(p, "Умер", "Умерла")} ${fullName(p)}, ${yrs(age(p))} — $cause.", "death")
+        log(t("${sx(p, "Умер", "Умерла")} ${fullName(p)}, ${yrs(age(p))} — $cause.", "${fullName(p)} died, aged ${age(p)}: $cause."), "death")
     }
 
     // ---- a year passes
@@ -235,8 +235,8 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
             val pr = .36 * (if (wa > 35) .55 else 1.0) * (if (has(wife, "hvor")) .7 else 1.0) * (if ("plod" in g.perks) 1.3 else 1.0)
             if (chance(pr)) {
                 val c = birth(p)
-                log("${p.name}: ${sx(c, "родился сын", "родилась дочь")} ${c.name}${if (c.tr.isNotEmpty()) " (" + c.tr.joinToString(", ") { tname(it, c) } + ")" else ""}.", "birth")
-                if (chance(.025)) kill(wife, "родильная горячка")
+                log(t("${p.name}: ${sx(c, "родился сын", "родилась дочь")} ${c.name}", "${p.name}: a ${sx(c, "son", "daughter")}, ${c.name}, is born") + (if (c.tr.isNotEmpty()) " (" + c.tr.joinToString(", ") { tname(it, c) } + ")" else "") + ".", "birth")
+                if (chance(.025)) kill(wife, t("родильная горячка", "childbed fever"))
             }
         }
         for (p in g.people.values.toList()) {
@@ -244,10 +244,10 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
             val aw = p.away
             if (aw != null) {
                 val ad = p.awayDie
-                if (ad != null && g.year >= ad) { kill(p, pick(listOf("пал" + sx(p, "", "а") + " на службе", "убит" + sx(p, "", "а") + " в сражении", "умер" + sx(p, "", "ла") + " в госпитале"))); continue }
+                if (ad != null && g.year >= ad) { kill(p, pick(tl(listOf("пал" + sx(p, "", "а") + " на службе", "убит" + sx(p, "", "а") + " в сражении", "умер" + sx(p, "", "ла") + " в госпитале"), listOf("fell in service", "killed in battle", "died in a field hospital")))); continue }
                 if (g.year >= aw) {
-                    p.away = null; p.awayDie = null; addTr(p, "shram"); glory(2); deed(p, sx(p, "Вернулся", "Вернулась") + " со службы")
-                    log("${p.name} ${sx(p, "вернулся", "вернулась")} со службы — ${sx(p, "седой", "седая")} и со шрамом.", "big")
+                    p.away = null; p.awayDie = null; addTr(p, "shram"); glory(2); deed(p, t(sx(p, "Вернулся", "Вернулась") + " со службы", "Came back from service"))
+                    log(t("${p.name} ${sx(p, "вернулся", "вернулась")} со службы — ${sx(p, "седой", "седая")} и со шрамом.", "${p.name} came back from service, grey and scarred."), "big")
                 }
                 continue
             }
@@ -257,26 +257,26 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
             if (p.blood && !p.grown && age(p) >= 13) {
                 val fa = person(p.father)
                 val got = grow(p, if (fa != null && fa.blood) fa else person(p.mother))
-                log("${p.name} ${sx(p, "вырос", "выросла")}: ${got.joinToString(", ")}.")
+                log(t("${p.name} ${sx(p, "вырос", "выросла")}: ", "${p.name} grew up: ") + got.joinToString(", ") + ".")
             }
             if (p.id != g.head && p.blood && p.away == null && p.spouse == null && age(p) in 18..30 && chance(.22)) {
                 val kz = g.feud > 0 && chance(.12)
                 val s = mkSpouse(p, if (kz) land.rival.g else null)
-                if (kz) { feud(-2); log("${p.name} ${sx(p, "женился на", "вышла за")} ${s.name} из ${land.rival.g}. Вражда поутихла.", "big") }
-                else log("${p.name} ${sx(p, "женился на", "вышла за")} ${s.name} из ${s.from}.")
+                if (kz) { feud(-2); log(t("${p.name} ${sx(p, "женился на", "вышла за")} ${s.name} из ${land.rival.g}. Вражда поутихла.", "${p.name} married ${s.name} of ${land.rival.g}. The feud cooled."), "big") }
+                else log(t("${p.name} ${sx(p, "женился на", "вышла за")} ${s.name} из ${s.from}.", "${p.name} married ${s.name} of ${s.from}."))
             }
         }
         for (p in g.people.values) {
             val hid = p.hidden ?: continue
             if (alive(p) && g.year >= hid.at) {
                 addTr(p, hid.t); p.hidden = null
-                log("Оказалось, что ${p.name} — ${tname(hid.t, p)}. Об этом при сговоре промолчали.", "big")
+                log(t("Оказалось, что ${p.name} — ${tname(hid.t, p)}. Об этом при сговоре промолчали.", "It turned out ${p.name} is ${tname(hid.t, p)}. Nobody mentioned it at the betrothal."), "big")
             }
         }
         val n = g.nakaz
         if (n != null && !n.done && nakazMet(n)) {
             n.done = true; glory(3); if (h.stones > 0) h.stones--
-            log("Исполнен наказ предка (${n.by}): «${n.t}»", "big")
+            log(t("Исполнен наказ предка (${n.by}): «${n.t}»", "An ancestor's wish is fulfilled (${n.by}): “${n.t}”"), "big")
         }
     }
 
@@ -309,8 +309,8 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
     fun sendAway(x: Person, war: String) {
         x.away = g.year + ri(14, 22)
         if (chance(.5)) x.awayDie = g.year + ri(1, 10)
-        deed(x, sx(x, "Ушёл", "Ушла") + " на службу" + if (war.isNotEmpty()) " — $war" else "")
-        log("${x.name} ${sx(x, "ушёл", "ушла")} на службу.", "big")
+        deed(x, t(sx(x, "Ушёл", "Ушла") + " на службу", "Went off to serve") + if (war.isNotEmpty()) " — $war" else "")
+        log(t("${x.name} ${sx(x, "ушёл", "ушла")} на службу.", "${x.name} went off to serve."), "big")
     }
 
     fun pickEvent(): Occ? {
@@ -352,12 +352,12 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
     fun rollInfo(o: Opt, occ: Occ): RollInfo {
         val r = o.roll!!
         val who = if (r.ofX) occ.xx else occ.h
-        val parts = mutableListOf(STAT_NAME.getValue(r.st) + (if (r.ofX) " (${occ.xx.name})" else "") to eff(who, r.st), "Божья милость" to 2)
-        if (r.d != 0) parts.add((if (r.d > 0) "Дело нетрудное" else "Дело трудное") to r.d)
+        val parts = mutableListOf(STAT_NAME.getValue(r.st) + (if (r.ofX) " (${occ.xx.name})" else "") to eff(who, r.st), t("Божья милость", "Grace of God") to 2)
+        if (r.d != 0) parts.add((if (r.d > 0) t("Дело нетрудное", "An easy matter") else t("Дело трудное", "A hard matter")) to r.d)
         for ((t, v) in r.tb) if (v != 0 && has(occ.h, t)) parts.add(cap(tname(t, occ.h)) to v)
         for (rl in g.relics) rl.b[r.st]?.let { parts.add(rl.n to it) }
-        if ("luck" in g.perks) parts.add("Счастливая рука" to 1)
-        if (g.bless > 0) parts.add("Нитка странницы" to 1)
+        if ("luck" in g.perks) parts.add(PERKS.getValue("luck").n to 1)
+        if (g.bless > 0) parts.add(t("Нитка странницы", "The wanderer's thread") to 1)
         val white = parts.sumOf { it.second }.coerceIn(1, 11)
         return RollInfo(parts, white, 12 - white, curseBeans())
     }
@@ -373,28 +373,28 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
     private fun diffs(a: Snap): List<Diff> {
         val out = mutableListOf<Diff>()
         fun num(v: Int, l: String, up: Boolean) { if (v != 0) out.add(Diff("$l ${if (v > 0) "+" else "−"}${abs(v)}", (v > 0) == up)) }
-        num(g.money - a.money, land.moneyLabel, true); num(g.glory - a.glory, "Слава", true); num(g.feud - a.feud, "Вражда", false); num(g.dvor - a.dvor, "Двор", true)
+        num(g.money - a.money, land.moneyLabel, true); num(g.glory - a.glory, t("Слава", "Glory"), true); num(g.feud - a.feud, t("Вражда", "Feud"), false); num(g.dvor - a.dvor, t("Двор", "Home"), true)
         g.people[a.head]?.let { p ->
             val st = p.stones - a.stones
-            if (st != 0) out.add(Diff("Камни на душе ${if (st > 0) "+" else "−"}${abs(st)}", st < 0))
-            for (t in p.tr) if (t !in a.tr) out.add(Diff("Черта: " + tname(t, p), t !in Traits.BAD))
-            if (p.monk) out.add(Diff(p.name + " в монастыре", false))
+            if (st != 0) out.add(Diff(t("Камни на душе", "Stones on the soul") + " ${if (st > 0) "+" else "−"}${abs(st)}", st < 0))
+            for (tr in p.tr) if (tr !in a.tr) out.add(Diff(t("Черта: ", "Trait: ") + tname(tr, p), tr !in Traits.BAD))
+            if (p.monk) out.add(Diff(p.name + t(" в монастыре", " in a monastery"), false))
         }
-        for (id in a.alive) { val p = g.people[id]; if (p != null && !alive(p)) out.add(Diff((if (p.male) "Умер: " else "Умерла: ") + p.name, false)) }
-        for (p in g.people.values) if (p.away != null && p.id !in a.away) out.add(Diff(p.name + " уходит из дома", false))
-        for (id in a.nid until g.nid) g.people[id]?.let { out.add(Diff((if (it.blood) "В роду: " else "В семье: ") + it.name, true)) }
-        if (g.relics.size > a.relics) out.add(Diff("Реликвия: " + g.relics.last().n, true))
-        if (g.secrets.size > a.secrets) out.add(Diff("Тайна в сундуке", false))
-        if (g.secrets.size < a.secrets) out.add(Diff("Тайна закрыта", true))
-        if (g.hex > a.hex && g.hex > g.year) out.add(Diff("Второй красный боб до " + g.hex, false))
-        if (g.bless > a.bless) out.add(Diff("Лишний белый боб", true))
+        for (id in a.alive) { val p = g.people[id]; if (p != null && !alive(p)) out.add(Diff(t(if (p.male) "Умер: " else "Умерла: ", "Died: ") + p.name, false)) }
+        for (p in g.people.values) if (p.away != null && p.id !in a.away) out.add(Diff(p.name + t(" уходит из дома", " leaves home"), false))
+        for (id in a.nid until g.nid) g.people[id]?.let { out.add(Diff((if (it.blood) t("В роду: ", "Born: ") else t("В семье: ", "Joins: ")) + it.name, true)) }
+        if (g.relics.size > a.relics) out.add(Diff(t("Реликвия: ", "Relic: ") + g.relics.last().n, true))
+        if (g.secrets.size > a.secrets) out.add(Diff(t("Тайна в сундуке", "A secret in the chest"), false))
+        if (g.secrets.size < a.secrets) out.add(Diff(t("Тайна закрыта", "A secret laid to rest"), true))
+        if (g.hex > a.hex && g.hex > g.year) out.add(Diff(t("Второй красный боб до ", "A second red bean until ") + g.hex, false))
+        if (g.bless > a.bless) out.add(Diff(t("Лишний белый боб", "An extra white bean"), true))
         return out
     }
 
     private fun finish(occ: Occ, o: Opt, a: Snap, text: String, good: Boolean?, red: Boolean): Outcome {
         var stone: String? = null
-        sinTrait(o, occ.h)?.let { t -> occ.h.stones++; stone = "Поступок не по нраву (${tname(t, occ.h)}). Камней на душе: ${occ.h.stones} из 5." }
-        log("${occ.ev.t}: ${o.t.lowercase()}${if (good == false) " — неудача" else if (good == true) " — удача" else ""}.")
+        sinTrait(o, occ.h)?.let { tr -> occ.h.stones++; stone = t("Поступок не по нраву (${tname(tr, occ.h)}). Камней на душе: ${occ.h.stones} из 5.", "Against the grain (${tname(tr, occ.h)}). Stones on the soul: ${occ.h.stones} of 5.") }
+        log("${occ.ev.t}: ${o.t.replaceFirstChar { it.lowercase() }}${if (good == false) t(" — неудача", " — it went badly") else if (good == true) t(" — удача", " — it went well") else ""}.")
         return Outcome(text, good, red, stone, diffs(a))
     }
 
@@ -413,7 +413,7 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
         g.bless = 0
         val good = res == 'w'
         var text = if (good) o.ok!!.invoke(this, occ) else o.bad!!.invoke(this, occ)
-        if (res == 'r') text = "Красный боб — проклятие помнит вас. $text"
+        if (res == 'r') text = t("Красный боб — проклятие помнит вас. ", "A red bean: the curse remembers you. ") + text
         if (good) for (r in g.relics) if (r.b.containsKey(o.roll!!.st)) r.lines.add(Note(g.year, "${occ.h.name}: ${occ.ev.t.lowercase()}"))
         return Triple(res, idx, finish(occ, o, a, text, good, res == 'r'))
     }
@@ -430,10 +430,10 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
         val ord = cands.sortedWith(compareBy<Person>({ if (it === eldest) 0 else 1 }, { it.gen }, { it.born }))
         val heirs = ord.map { p ->
             val w = mutableListOf<String>()
-            if (eldest != null && p !== eldest && age(eldest) >= 16) w.add("${eldest.name} затаит обиду")
-            if (p.bast) w.add("незаконн${sx(p, "ый", "ая")}: Слава −2")
-            if (age(p) < 14) w.add("дитя — двор без хозяина")
-            if (p.away != null) w.add("вернётся со службы")
+            if (eldest != null && p !== eldest && age(eldest) >= 16) w.add(t("${eldest.name} затаит обиду", "${eldest.name} will bear a grudge"))
+            if (p.bast) w.add(t("незаконн${sx(p, "ый", "ая")}: Слава −2", "born out of wedlock: Glory −2"))
+            if (age(p) < 14) w.add(t("дитя — двор без хозяина", "a child: the house without a master"))
+            if (p.away != null) w.add(t("вернётся со службы", "will come back from service"))
             Heir(p, p === eldest, w.joinToString(" · ").ifEmpty { null })
         }
         return Succession(d, heirs, eldest)
@@ -443,16 +443,16 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
     fun takeHeir(p: Person, eldest: Person?): Boolean {
         if (eldest != null && p !== eldest && age(eldest) >= 16) {
             g.grudge = eldest.id
-            log("${eldest.name} обойден${sx(eldest, "", "а")} наследством и затаил${sx(eldest, "", "а")} обиду.", "big")
+            log(t("${eldest.name} обойден${sx(eldest, "", "а")} наследством и затаил${sx(eldest, "", "а")} обиду.", "${eldest.name} was passed over and bears a grudge."), "big")
         }
         if (p.bast) glory(-2)
         if (p.away != null) { p.away = null; p.awayDie = null }
         g.head = p.id; g.heads.add(p.id)
         if (p.stones > 0) p.stones--
-        log("Главой рода стал${sx(p, "", "а")} ${fullName(p)} (колено ${roman(p.gen)}).", "big")
+        log(t("Главой рода стал${sx(p, "", "а")} ${fullName(p)} (колено ${roman(p.gen)}).", "${fullName(p)} became head of the family (generation ${roman(p.gen)})."), "big")
         if (p.gen >= 7 && !g.won) {
             g.won = true; glory(10)
-            log("Красная нить порвалась. Проклятие снято.", "big")
+            log(t("Красная нить порвалась. Проклятие снято.", "The red thread has snapped. The curse is lifted."), "big")
             return true
         }
         return false
@@ -462,9 +462,10 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
         g.over = true
         val born = g.people.values.count { it.blood }
         val span = g.year - g.people.getValue(g.founder).born
-        g.overTxt = "${fullName(d)} ${sx(d, "умер последним", "умерла последней")} в роду. Проклятие исполнилось на ${roman(d.gen)} колене. " +
-            "Род прожил ${yrs(span)}, в нём ${plural(born, "родилась", "родились", "родилось")} $born ${plural(born, "душа", "души", "душ")}."
-        log("Род пресёкся на ${roman(d.gen)} колене.", "big")
+        g.overTxt = t("${fullName(d)} ${sx(d, "умер последним", "умерла последней")} в роду. Проклятие исполнилось на ${roman(d.gen)} колене. " +
+            "Род прожил ${yrs(span)}, в нём ${plural(born, "родилась", "родились", "родилось")} $born ${plural(born, "душа", "души", "душ")}.",
+            "${fullName(d)} died the last of the line. The curse came true in generation ${roman(d.gen)}. The family lasted ${yrs(span)}; $born ${if (born == 1) "soul was" else "souls were"} born into it.")
+        log(t("Род пресёкся на ${roman(d.gen)} колене.", "The line ended in generation ${roman(d.gen)}."), "big")
     }
 
     // ---- home actions
@@ -473,7 +474,7 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
         val cost = DVOR_COST[g.dvor + 1]
         if (g.money < cost) return false
         money(-cost); g.dvor++
-        log("Поставили новый двор: ${land.dvor[g.dvor]}.", "big")
+        log(t("Поставили новый двор: ", "Built a new home: ") + land.dvor[g.dvor] + ".", "big")
         return true
     }
 
@@ -481,7 +482,7 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
         val p = PERKS[k] ?: return false
         if (k in g.perks || g.glory < p.cost || g.over) return false
         g.glory -= p.cost; g.perks.add(k)
-        log("Наследие рода: «${p.n}».", "big")
+        log(t("Наследие рода: «${p.n}».", "Family legacy: “${p.n}”."), "big")
         return true
     }
 

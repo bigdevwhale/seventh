@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import app.seventh.BuildConfig
 import app.seventh.R
+import app.seventh.domain.t
 import app.seventh.domain.Engine
 import app.seventh.domain.Looks
 import app.seventh.domain.Person
@@ -136,14 +137,13 @@ fun Engine.treeData(ctx: Context): TreeData {
     val nodes = all.map { p ->
         val ring = when { p.id == g.head -> Ring.HEAD; p.id in g.heads -> Ring.WAS; alive(p) && !p.monk -> Ring.ALIVE; else -> Ring.DEAD }
         TreeNode(p.id, x(p.id), y(p.id), fig(p), bgOf(p), p.died != null || p.monk, ring, liv(p), alive(p) && !p.monk,
-            spouseOf(p)?.let { alive(it) }, p.bast, p.id in g.heads, p.name, "${p.born}–${p.died ?: if (p.monk) "мон." else ""}")
+            spouseOf(p)?.let { alive(it) }, p.bast, p.id in g.heads, p.name, "${p.born}–${p.died ?: if (p.monk) t("мон.", "mon.") else ""}")
     }
     val edges = all.mapNotNull { p ->
         val par = listOf(person(p.father), person(p.mother)).firstOrNull { it != null && it.blood && px.containsKey(it.id) } ?: return@mapNotNull null
         TreeEdge(par.id, p.id, p.id in main)
     }
-    val eu = g.land == "eu"
-    val num = ResourcesCompat.getFont(ctx, if (eu) R.font.alegreya_sc_extrabold else R.font.ruslan_display)!!
-    val lab = ResourcesCompat.getFont(ctx, if (eu) R.font.alegreya else R.font.kurale)!!
+    val num = ResourcesCompat.getFont(ctx, when (g.land) { "eu" -> R.font.alegreya_sc_extrabold; "edo" -> R.font.zen_old_mincho_black; else -> R.font.ruslan_display })!!
+    val lab = ResourcesCompat.getFont(ctx, when (g.land) { "eu" -> R.font.alegreya; "edo" -> R.font.zen_old_mincho; else -> R.font.kurale })!!
     return TreeData(w, h, rows, List(rows) { y(root.id) - it * rh }, root.id, nodes, edges, g.won, g.year % 4 == 2, num, lab)
 }

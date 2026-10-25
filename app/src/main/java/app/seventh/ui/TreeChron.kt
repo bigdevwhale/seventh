@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.seventh.R
+import app.seventh.domain.t
 import app.seventh.domain.roman
 import app.seventh.ui.art.Art
 import app.seventh.ui.theme.LocalPal
@@ -104,7 +105,7 @@ fun ChronicleScreen(st: GameState) {
                         PortraitView(e, p, 48.dp)
                         Column(Modifier.weight(1f)) {
                             Text("${roman(p.gen)}. ${e.fullName(p)}", style = P.b(16.sp))
-                            Text("${p.born}–${p.died ?: if (p.monk) "монастырь" else "жив" + e.sx(p, "", "а")}", style = P.b(12.5.sp, P.muted))
+                            Text("${p.born}–${p.died ?: if (p.monk) t("монастырь", "monastery") else t("жив" + e.sx(p, "", "а"), "alive")}", style = P.b(12.5.sp, P.muted))
                             Text(p.epi.ifEmpty { p.tr.joinToString(", ") { e.tname(it, p) } }, style = P.b(12.5.sp, P.muted))
                         }
                     }

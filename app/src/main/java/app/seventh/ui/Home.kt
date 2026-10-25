@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.seventh.R
+import app.seventh.domain.t
 import app.seventh.domain.DVOR_COST
 import app.seventh.domain.Engine
 import app.seventh.domain.LogLine
@@ -33,25 +34,29 @@ import app.seventh.ui.theme.LocalPal
 
 /** Explanations behind the «?» marks; feud and heart depend on the land. */
 object Help {
-    const val STONES = "Камни на душе ложатся, когда человек поступает против своего нрава: добрый — жестоко, честный — лжёт, храбрый — бежит. На пятом камне случается срыв."
-    const val BAG = "Исход каждого дела решает боб из мешка: белый — удача, чёрный — беда, красный — проклятие. Белых тем больше, чем выше нужный показатель и полезные черты."
-    const val SECRETS = "Тайны рода рано или поздно всплывают — бывает, что и через поколение."
-    const val HEIRS = "Наследник — любой живой потомок главы рода. Когда глава умрёт, вы выберете, за кого играть дальше. Нет потомков — род пресёкся."
-    const val GLORY = "Слава копится за подвиги, честность и исполненные наказы. Её тратят на свойства, которые останутся у рода навсегда."
+    val STONES get() = t("Камни на душе ложатся, когда человек поступает против своего нрава: добрый — жестоко, честный — лжёт, храбрый — бежит. На пятом камне случается срыв.",
+        "Stones lie on the soul when someone acts against their temper: the kind are cruel, the honest lie, the brave run. The fifth stone brings a breakdown.")
+    val BAG get() = t("Исход каждого дела решает боб из мешка: белый — удача, чёрный — беда, красный — проклятие. Белых тем больше, чем выше нужный показатель и полезные черты.",
+        "Every deed is settled by a bean drawn from the bag: white is luck, black is misfortune, red is the curse. The higher the stat and the better the traits, the more white beans.")
+    val SECRETS get() = t("Тайны рода рано или поздно всплывают — бывает, что и через поколение.", "Family secrets come out sooner or later, sometimes a generation on.")
+    val HEIRS get() = t("Наследник — любой живой потомок главы рода. Когда глава умрёт, вы выберете, за кого играть дальше. Нет потомков — род пресёкся.",
+        "An heir is any living descendant of the head of the family. When the head dies you choose whom to play next. No descendants, and the line ends.")
+    val GLORY get() = t("Слава копится за подвиги, честность и исполненные наказы. Её тратят на свойства, которые останутся у рода навсегда.",
+        "Glory gathers from brave deeds, honesty and fulfilled wishes. Spend it on gifts the family keeps forever.")
     fun stat(e: Engine, s: Stat) = when (s) {
-        Stat.SIL -> "Сила — звери, драки, пожар, тяжёлый труд."
-        Stat.UM -> "Ум — суд, хитрые затеи, учёба, лекари."
+        Stat.SIL -> t("Сила — звери, драки, пожар, тяжёлый труд.", "Strength: beasts, fights, fire, hard labour.")
+        Stat.UM -> t("Ум — суд, хитрые затеи, учёба, лекари.", "Wits: courts, clever schemes, learning, doctors.")
         Stat.SER -> e.land.helpHeart
-        Stat.HIT -> "Хитрость — обман, торг, спрятать и спрятаться."
-        Stat.VER -> "Вера — молитва, искушения, мор, покаяние."
-        Stat.ZDR -> "Здоровье — болезни, долгая жизнь, дальняя дорога."
+        Stat.HIT -> t("Хитрость — обман, торг, спрятать и спрятаться.", "Cunning: tricks, haggling, hiding things and hiding yourself.")
+        Stat.VER -> t("Вера — молитва, искушения, мор, покаяние.", "Faith: prayer, temptation, plague, repentance.")
+        Stat.ZDR -> t("Здоровье — болезни, долгая жизнь, дальняя дорога.", "Health: illness, a long life, a long road.")
     }
 }
 
 fun Engine.statusOf(p: Person): String = when {
-    p.monk -> "в монастыре"
+    p.monk -> t("в монастыре", "in a monastery")
     p.died != null -> "${p.born}–${p.died}, ${p.cause}"
-    p.away != null -> "в отъезде"
+    p.away != null -> t("в отъезде", "away")
     else -> yrs(age(p))
 }
 
@@ -76,10 +81,10 @@ fun HomeScreen(st: GameState) {
         else if (heirs.isEmpty()) PaperCard(Modifier.clickable { info(Help.HEIRS) }, tint = P.warn) {
             Row(verticalAlignment = Alignment.CenterVertically) { H3(stringResource(R.string.no_heir), color = P.dred); Q() }
             Gap(4.dp)
-            Para("Если ${e.sx(h, "глава рода умрёт", "хозяйка рода умрёт")} сейчас, род пресечётся. " + when {
-                e.married(h) -> "Дети ещё будут — берегите семью."
-                e.age(h) < 16 -> "Ребёнку нужно вырасти и обзавестись семьёй."
-                else -> "Пора " + e.sx(h, "жениться", "замуж") + " — " + (if (g.land == "eu") "тётушка Аэлис придёт сама." else "сваха придёт сама.")
+            Para(t("Если ${e.sx(h, "глава рода умрёт", "хозяйка рода умрёт")} сейчас, род пресечётся. ", "If ${e.sx(h, "he", "she")} dies now, the line ends. ") + when {
+                e.married(h) -> t("Дети ещё будут — берегите семью.", "Children may still come; keep the family safe.")
+                e.age(h) < 16 -> t("Ребёнку нужно вырасти и обзавестись семьёй.", "The child has to grow up and marry.")
+                else -> t("Пора " + e.sx(h, "жениться", "замуж") + " — сваты придут сами.", "Time to marry: the matchmaker will come.")
             })
         }
         PaperCard {
@@ -88,7 +93,7 @@ fun HomeScreen(st: GameState) {
                 PortraitView(e, h, 72.dp, Modifier.clickable { st.sheet = Sheet.Card(h, Sheet.None) })
                 Column(Modifier.weight(1f)) {
                     Text(e.fullName(h), style = P.b(20.sp))
-                    Text(e.statusOf(h) + " · " + (if (s != null) (if (e.alive(s)) e.sx(h, "жена", "муж") + " " + s.name else e.sx(h, "вдовец", "вдова")) else e.sx(h, "не женат", "не замужем")), style = P.small)
+                    Text(e.statusOf(h) + " · " + (if (s != null) (if (e.alive(s)) t(e.sx(h, "жена", "муж"), e.sx(h, "wife", "husband")) + " " + s.name else e.tname("vdov", h)) else t(e.sx(h, "не женат", "не замужем"), "unmarried")), style = P.small)
                     Chips(e, h, info)
                 }
             }
@@ -106,12 +111,12 @@ fun HomeScreen(st: GameState) {
                     PortraitView(e, p, 48.dp)
                     Column(Modifier.weight(1f)) {
                         Text(p.name, style = P.b(16.sp))
-                        val rel = if (isSp) e.sx(h, "жена", "муж") else e.relation(p, h)
+                        val rel = if (isSp) t(e.sx(h, "жена", "муж"), e.sx(h, "wife", "husband")) else e.relation(p, h)
                         Text("$rel, ${e.yrs(e.age(p))}" + if (p.tr.isNotEmpty()) " · " + p.tr.take(3).joinToString(", ") { e.tname(it, p) } else "", style = P.b(12.5.sp, P.muted))
                         FlowRow(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             if (!isSp) Pill(stringResource(R.string.heir), P.good)
                             if (p.away != null) Pill(stringResource(R.string.away), P.mid)
-                            if (p.bast) Pill("незаконн" + e.sx(p, "ый", "ая"), P.paper2)
+                            if (p.bast) Pill(t("незаконн" + e.sx(p, "ый", "ая"), "born out of wedlock"), P.paper2)
                             if (e.married(p) && !isSp) Pill(stringResource(R.string.married), P.paper2)
                         }
                     }

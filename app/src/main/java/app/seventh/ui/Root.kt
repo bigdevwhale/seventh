@@ -96,7 +96,7 @@ private fun Header(st: GameState) {
 @Composable
 private fun Tabs(st: GameState) {
     val P = LocalPal.current
-    val names = listOf(if (st.e.g.land == "eu") stringResource(R.string.tab_home_eu) else stringResource(R.string.tab_home), stringResource(R.string.tab_tree), stringResource(R.string.tab_chron))
+    val names = listOf(if (st.e.g.land != "rus") stringResource(R.string.tab_home_eu) else stringResource(R.string.tab_home), stringResource(R.string.tab_tree), stringResource(R.string.tab_chron))
     Row(Modifier.fillMaxWidth().background(P.bar).navigationBarsPadding().padding(horizontal = 6.dp, vertical = 5.dp), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
         names.forEachIndexed { i, n ->
             val on = st.tab == i

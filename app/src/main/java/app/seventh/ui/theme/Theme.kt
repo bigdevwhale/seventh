@@ -60,6 +60,8 @@ class Pal(
 
 private val Ruslan = FontFamily(Font(R.font.ruslan_display))
 private val Kurale = FontFamily(Font(R.font.kurale))
+private val Zen = FontFamily(Font(R.font.zen_old_mincho))
+private val ZenBlack = FontFamily(Font(R.font.zen_old_mincho_black, FontWeight.Black))
 private val AlegreyaSC = FontFamily(Font(R.font.alegreya_sc_extrabold, FontWeight.ExtraBold))
 @OptIn(ExperimentalTextApi::class)
 private val Alegreya = FontFamily(
@@ -82,7 +84,14 @@ val EuPal = Pal(
     display = AlegreyaSC, displayWeight = FontWeight.ExtraBold, body = Alegreya,
 )
 
-fun palOf(land: String) = if (land == "eu") EuPal else RusPal
+val JpPal = Pal(
+    "edo", paper = Color(0xFFF4ECD8), paper2 = Color(0xFFEADFC4), paper3 = Color(0xFFC7B48C), ink = Color(0xFF1D1A24), red = Color(0xFFC0392B), dred = Color(0xFF8A2A1E),
+    green = Color(0xFF4F7A4A), ochre = Color(0xFFDDB15A), blue = Color(0xFF1F3A5F), bg = Color(0xFFDCCFB2), muted = Color(0xFF6A5D4C),
+    bar = Color(0xFF1C2B42), barText = Color(0xFFC7B48C), big = Color(0xFFB8372A), ornA = Color(0xFF1F3A5F), ornB = Color(0xFFF4ECD8),
+    display = ZenBlack, displayWeight = FontWeight.Black, body = Zen,
+)
+
+fun palOf(land: String) = when (land) { "eu" -> EuPal; "edo" -> JpPal; else -> RusPal }
 
 val LocalPal = staticCompositionLocalOf { RusPal }
 

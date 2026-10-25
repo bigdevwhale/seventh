@@ -54,6 +54,7 @@ import app.seventh.domain.Stat
 import app.seventh.domain.STAT_NAME
 import app.seventh.domain.TrKind
 import app.seventh.domain.Traits
+import app.seventh.domain.t
 import app.seventh.ui.theme.LocalPal
 
 /** The ornament band: diamonds in Rus, a checker in Europe. */
@@ -71,7 +72,10 @@ fun Orn(modifier: Modifier = Modifier, h: Dp = 10.dp) {
         var x = (size.width - n * s) / 2f
         var i = 0
         while (i < n) {
-            if (P.land == "eu") {
+            if (P.land == "edo") {
+                drawRect(P.ornA, Offset(x, top), Size(s, hh))
+                for (r in listOf(.5f, .3f)) drawArc(P.ornB, 180f, 180f, false, Offset(x + s / 2 - s * r, top + hh - s * r), Size(2 * s * r, 2 * s * r), style = Stroke(1.2f * density))
+            } else if (P.land == "eu") {
                 drawRect(P.ornA, Offset(x, top), Size(s / 2, hh / 2))
                 drawRect(P.ornA, Offset(x + s / 2, top + hh / 2), Size(s / 2, hh / 2))
             } else {
@@ -97,7 +101,7 @@ fun PaperCard(modifier: Modifier = Modifier, tint: Color? = null, pad: Dp = 13.d
                 drawRoundRect(bg, cornerRadius = CornerRadius(r))
                 drawRoundRect(P.ink, cornerRadius = CornerRadius(r), style = Stroke(2.dp.toPx()))
                 val ins = 5.dp.toPx()
-                drawRect(if (P.land == "eu") P.ochre else P.ink.copy(alpha = .4f), Offset(ins, ins), Size(size.width - 2 * ins, size.height - 2 * ins), style = Stroke(1.dp.toPx()))
+                drawRect(if (P.land == "eu") P.ochre else if (P.land == "edo") P.red.copy(alpha = .55f) else P.ink.copy(alpha = .4f), Offset(ins, ins), Size(size.width - 2 * ins, size.height - 2 * ins), style = Stroke(1.dp.toPx()))
             }
             .padding(pad),
         content = content,
@@ -151,7 +155,7 @@ fun Chips(e: Engine, p: Person, onInfo: (String) -> Unit) {
             val bg = when (tr.kind) { TrKind.NRAV -> Color(0xFFF0C0A8); TrKind.KROV -> Color(0xFFC2D2E8); TrKind.NAZH -> Color(0xFFF0D68E) }
             Pill(e.tname(t, p), bg, onClick = { onInfo(e.cap(e.tname(t, p)) + ": " + tr.desc) })
         }
-        if (p.bast) Pill("незаконн" + e.sx(p, "ый", "ая"), P.paper2)
+        if (p.bast) Pill(t("незаконн" + e.sx(p, "ый", "ая"), "born out of wedlock"), P.paper2)
     }
 }
 
