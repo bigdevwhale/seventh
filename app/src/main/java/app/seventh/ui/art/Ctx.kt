@@ -106,6 +106,7 @@ internal class Ctx {
     }
     fun fill(col: Int) { prep(fp, col); cv.drawPath(path, fp) }
     fun fillS(s: Shader) { prep(fp, -0x1000000); fp.shader = s; cv.drawPath(path, fp); fp.shader = null }
+    fun strokeS(s: Shader, w: Double) { prep(sp2, -0x1000000); sp2.shader = s; sp2.strokeWidth = w.toFloat(); cv.drawPath(path, sp2); sp2.shader = null }
     fun stroke(col: Int, w: Double) { prep(sp2, col); sp2.strokeWidth = w.toFloat(); cv.drawPath(path, sp2) }
     fun fillRect(x: Double, y: Double, w: Double, h: Double, col: Int) {
         prep(fp, col); cv.drawRect(x.toFloat(), y.toFloat(), (x + w).toFloat(), (y + h).toFloat(), fp)

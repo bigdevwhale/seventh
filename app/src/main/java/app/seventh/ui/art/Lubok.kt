@@ -298,16 +298,6 @@ internal fun Ctx.izba(
     if (chimney) smoke(chx, chy - 8, f, 5)
     if (smoky) smoke(x + w * 0.1, T - rh * 0.6, f, 6, true)
 }
-internal fun Ctx.smoke(x: Double, y: Double, f: Double, n: Int = 5, dark: Boolean = false) {
-    still {
-        for (i in 0 until n) {
-            val ph = (f * 0.2 + i.toDouble() / n) % 1; val yy = y - ph * 30; val xx = x + sin(ph * 5 + i) * 2.4 + ph * 6; val r = 1.3 + ph * 3.4
-            val o = alpha; alpha = (1 - ph) * 0.85
-            el(xx, yy, r, r * 0.8, if (dark) hex(0xFF6A645C) else hex(0xFFECE6D8), 0.4, false, 12)
-            alpha *= 0.6; ln(pt(xx - r * 0.4, yy, xx, yy - r * 0.3, xx + r * 0.3, yy + 0.1), INK, 0.3, true); alpha = o
-        }
-    }
-}
 internal fun Ctx.barn(x: Double, y: Double, w: Double, snow: Boolean = false) {
     val h = w * 0.62; val L = x - w / 2; val T = y - h
     quad(L, T, w, h, hex(0xFF8F5E34))

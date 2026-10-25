@@ -32,7 +32,7 @@ object Art {
 
     /** Bean bag, logical 120×56. beans = list of 'w','b','r'; idx = index of the drawn bean (-1 none); res = drawn bean or null; rise 0..1. */
     fun bag(c: Canvas, wPx: Float, land: String, beans: List<Char>, shake: Float, idx: Int, res: Char?, rise: Float) =
-        draw(c, 120.0, 56.0, wPx, land) { if (edo) edoBag(beans, shake.toDouble(), idx, res, rise.toDouble()) else drawBag(beans, shake.toDouble(), idx, res, rise.toDouble()) }
+        draw(c, 120.0, 56.0, wPx, land) { bagPicture(beans, shake.toDouble(), idx, res, rise.toDouble()) }
 
     /** The red thread with 7 knots in the header, logical 58×9. */
     fun thread(c: Canvas, wPx: Float, gen: Int, won: Boolean) = draw(c, 58.0, 9.0, wPx, "rus") { thread(gen, won) }

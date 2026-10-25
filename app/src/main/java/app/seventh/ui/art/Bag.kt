@@ -6,38 +6,6 @@ import kotlin.math.sin
 
 /* the bag of beans, the red thread, relics */
 
-internal fun Ctx.beanDraw(x: Double, y: Double, kind: Char, s: Double = 1.0) {
-    val col = when (kind) { 'w' -> WHT; 'b' -> hex(0xFF2B231D); else -> KIN }
-    el(x, y, 2.6 * s, 1.9 * s, col, 0.5, false, 12)
-    dot(x - 0.9 * s, y - 0.6 * s, 0.55 * s, if (kind == 'b') hex(0xFF6A5A4C) else WHITE)
-    ln(pt(x + 0.2 * s, y - 1.2 * s, x + 0.6 * s, y + 1 * s), if (kind == 'b') hex(0xFF5A4A3C) else rgba(31, 23, 18, 0.35), 0.3 * s, true)
-}
-
-internal fun Ctx.drawBag(beans: List<Char>, shake: Double, idx: Int, res: Char?, rise: Double) {
-    fillRect(0.0, 0.0, 120.0, 56.0, hex(0xFFEFE0B6))
-    save(); translate(27 + shake, 0.0); val cx = 0.0
-    val sack = pt(cx - 6, 22.0, cx - 14, 28.0, cx - 18, 38.0, cx - 16, 48.0, cx - 8, 53.5, cx + 8, 53.5, cx + 16, 48.0, cx + 18, 38.0, cx + 14, 28.0, cx + 6, 22.0)
-    sh(sack, hex(0xFFCF9F5C), 0.8, sm = true)
-    hatch(pt(cx + 4, 24.0, cx + 14, 28.0, cx + 18, 38.0, cx + 16, 48.0, cx + 8, 53.5, cx + 6, 40.0), sm = true, a = 0.3, sp = 1.4)
-    sh(pt(cx, 31.0, cx + 2, 35.4, cx + 6.6, 36.4, cx + 2.6, 39.0, cx + 4, 44.0, cx, 41.4, cx - 4, 44.0, cx - 2.6, 39.0, cx - 6.6, 36.4, cx - 2, 35.4), KIN, 0.45)
-    dot(cx, 38.4, 1.0, YEL)
-    for (i in 0 until 7) dot(cx - 9 + i * 3, 48.6, 0.6, KIN)
-    sh(pt(cx - 6, 23.0, cx - 5, 17.6, cx - 7.4, 14.4, cx, 13.0, cx + 7.4, 14.4, cx + 5, 17.6, cx + 6, 23.0), hex(0xFFDCAE6C), 0.7, sm = true)
-    el(cx, 14.4, 5.8, 1.8, hex(0xFF3A2614), 0.5, false)
-    ln(pt(cx - 6.4, 21.0, cx, 22.6, cx + 6.4, 21.0), INK, 2.1, true); ln(pt(cx - 6.4, 21.0, cx, 22.6, cx + 6.4, 21.0), KIN, 1.3, true)
-    ln(pt(cx + 5.4, 21.6, cx + 7.4, 26.0, cx + 6.6, 30.0), INK, 1.1, true); ln(pt(cx + 5.4, 21.6, cx + 7.4, 26.0, cx + 6.6, 30.0), KIN, 0.6, true)
-    el(cx + 6.6, 31.0, 1.1, 1.6, KIN, 0.4)
-    if (res != null) {
-        val k = rise; val by = 17 - k * 9
-        if (k >= 1) still { for (i in 0 until 8) { val a = i / 8.0 * 6.283; ln(pt(cx + cos(a) * 6, 8 + sin(a) * 5, cx + cos(a) * 9, 8 + sin(a) * 7), if (res == 'r') KIN else OCH, 0.7) } }
-        beanDraw(cx, by, res, 1 + 0.7 * k)
-    }
-    restore()
-    var x = 58.0; var y = 10.0; var n = 0
-    beans.forEachIndexed { i, b -> if (i == idx) return@forEachIndexed; beanDraw(x, y, b); x += 8; if (++n % 8 == 0) { x = 58.0; y += 7 } }
-    paper(0.6)
-}
-
 internal fun Ctx.thread(gen: Int, won: Boolean) {
     if (!won) { beginPath(); for (x in 1..57) if (x == 1) moveTo(1.0, 4.5) else lineTo(x.toDouble(), 4.5 + sin(x * 0.8) * 0.6); stroke(KIN, 0.9) }
     for (i in 0 until 7) {

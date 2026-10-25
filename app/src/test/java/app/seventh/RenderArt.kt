@@ -118,15 +118,54 @@ class RenderArt {
         }
     }
 
-    @Test fun timing() {
-        val b = Bitmap.createBitmap(1000, 570, Bitmap.Config.ARGB_8888); val c = Canvas(b)
-        for ((land, keys) in listOf("rus" to rusKeys, "eu" to euKeys, "edo" to edoKeys)) {
-            val d = SceneData(hero = hero, spouse = wife, other = kid, family = family, year = 1702)
-            val ops = keys.map { k -> Art.scene(c, 1000f, land, k, d, 0f); "$k=${Art.lastOps}" }
-            println("ops $land: $ops")
-            val t0 = System.nanoTime(); var n = 0
-            for (k in keys) { Art.scene(c, 1000f, land, k, d, 0.033f); n++ }
-            println("render $land: %.1f ms/scene (Robolectric software canvas, not representative)".format((System.nanoTime() - t0) / 1e6 / n))
+    @Test fun smokeAndBagAfter() {
+        val fam = listOf(hero, wife, kid)
+        val shots = listOf("rus" to "village", "rus" to "fire", "rus" to "war", "rus" to "home0", "eu" to "village", "eu" to "pyre", "edo" to "village", "edo" to "fire", "edo" to "plague")
+        val ts = listOf(1f, 2.5f, 4f)
+        save("smoke_after.png", sheet(3, 352, 200, shots.size * 3) { c, i ->
+            val (land, key) = shots[i / 3]; val t = ts[i % 3]
+            if (key == "home0") Art.home(c, 352f, land, HomeData(0, 1, false, fam, 1, 1700), t)
+            else Art.scene(c, 352f, land, key, SceneData(hero, other = kid, family = fam, year = 1702), t)
+        })
+        val beans = "wwwwwwwbbbbbr".toList()
+        val ps = listOf(0f, 0.12f, 0.3f, 0.45f, 0.6f, 0.75f, 0.9f, 1f)
+        save("bag_after.png", sheet(4, 360, 168, 3 * ps.size + 6) { c, i ->
+            val lands = listOf("rus", "eu", "edo")
+            if (i >= 3 * ps.size) { val j = i - 3 * ps.size; Art.bag(c, 360f, lands[j % 3], beans, 0f, 3, if (j < 3) 'r' else 'b', 1f); return@sheet }
+            val land = lands[i / ps.size]; val p = ps[i % ps.size]
+            bagAt(c, 360f, land, beans, p)
+        })
+    }
+    /** the BagPhase animation at p 0..1 */
+    private fun bagAt(c: Canvas, w: Float, land: String, beans: List<Char>, p: Float) {
+        if (p == 0f) Art.bag(c, w, land, beans, 0f, -1, null, 0f)
+        else if (p < BAG_SHAKE) { val k = p / BAG_SHAKE; Art.bag(c, w, land, beans, (kotlin.math.sin(k * Math.PI * 5) * 2.4 * (1 - k)).toFloat(), -1, null, 0f) }
+        else { val k = ((p - BAG_SHAKE) / (1 - BAG_SHAKE)).coerceIn(0f, 1f); Art.bag(c, w, land, beans, 0f, 3, 'w', (1 - (1 - k).toDouble().pow(3)).toFloat()) }
+    }
+}
+
+private const val BAG_SHAKE = 0.5f
+private fun Double.pow(e: Int) = Math.pow(this, e.toDouble())
+
+/** The launcher icon drawn from its own vectors into docs/logo.png (run with `-Prender`). */
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [34])
+class RenderLogo {
+    @Test fun logo() {
+        val ctx = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val n = 512
+        val b = Bitmap.createBitmap(n, n, Bitmap.Config.ARGB_8888)
+        val c = Canvas(b)
+        val clip = android.graphics.Path().apply { addRoundRect(0f, 0f, n.toFloat(), n.toFloat(), n * .22f, n * .22f, android.graphics.Path.Direction.CW) }
+        c.clipPath(clip)
+        for (id in listOf(R.drawable.ic_launcher_background, R.drawable.ic_launcher_foreground)) {
+            val d = androidx.core.content.ContextCompat.getDrawable(ctx, id)!!
+            d.setBounds(0, 0, n, n); d.draw(c)
         }
+        val docs = java.io.File(System.getProperty("render.out") ?: "build/art").parentFile!!.parentFile!!.parentFile!!.resolve("docs").apply { mkdirs() }
+        java.io.File(docs, "logo.png").outputStream().use { b.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        val small = Bitmap.createScaledBitmap(b, 48 * 3, 48 * 3, true)
+        java.io.File(System.getProperty("render.out") ?: "build/art", "logo_small.png").outputStream().use { small.compress(Bitmap.CompressFormat.PNG, 100, it) }
     }
 }
