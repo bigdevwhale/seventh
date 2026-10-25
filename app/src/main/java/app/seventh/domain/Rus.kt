@@ -145,7 +145,7 @@ object Rus : Land("rus") {
                     Opt(t("Выгнать со двора", "Drive ${sx(x, "him", "her")} off the farm"), sin = "cruel", fx = { g.grudge = null; g.hex = g.year + 6; t("${x.name} ушл${sx(x, "", "а")}, прокляв вас у ворот. В мешке с бобами на шесть лет прибавился второй красный.", "${x.name} left, cursing you at the gate. For six years a second red bean lies in the bag.") }),
                 )
             }),
-        Event("dream", "dream", Tx("Сон", "A Dream"), cond = { val n = g.nakaz; fire(n != null && !n.done && g.year - n.y >= 6 && g.year - (n.nag ?: n.y) >= 5 && chance(.4)) },
+        Event("dream", "dream", Tx("Сон", "A Dream"), cond = { fire(dreamDue()) },
             txt = { val n = g.nakaz!!; n.nag = g.year; pick(listOf(
                 t("Снится покойный предок — ${n.by}. Стоит у печи, смотрит с укором: «${n.t}». И уходит, не оглядываясь.", "You dream of an ancestor long dead: ${n.by}, standing by the stove with a look of reproach. “${n.t}.” Then gone, without a backward glance."),
                 t("Снится ${n.by} — сидит на лавке у окна, как при жизни, и загибает пальцы, считает что-то. Поднимает глаза: «${n.t}». И свеча гаснет.", "You dream of ${n.by}, sitting on the bench by the window as in life, counting something on the fingers. Then the eyes lift: “${n.t}.” And the candle goes out."),

@@ -95,6 +95,13 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
     fun curseBeans() = (if (g.won) 0 else 1) + if (g.hex > g.year) 1 else 0
     fun part(n: Double) = ceil(g.money * n).toInt()
 
+    /** The dead ancestor comes in a dream about an unfulfilled wish: not before 8 years, then at most every 15, and not after 40. */
+    fun dreamDue(): Boolean {
+        val n = g.nakaz ?: return false
+        val since = g.year - n.y
+        return !n.done && since in 8..40 && g.year - (n.nag ?: n.y) >= 15 && chance(.35)
+    }
+
     // ---- marks for chains of events: set now, read years later
     fun flag(k: String, v: Int = g.year) { g.flags[k] = v }
     fun unflag(k: String) { g.flags.remove(k) }

@@ -146,7 +146,7 @@ object Europe : Land("eu") {
                     Opt(t("Выгнать со двора", "Drive ${sx(x, "him", "her")} out of the house"), sin = "cruel", fx = { g.grudge = null; g.hex = g.year + 6; t("${x.name} ушл${sx(x, "", "а")}, прокляв вас у ворот. В мешке с бобами на шесть лет прибавился второй красный.", "${x.name} left, cursing you at the gate. For six years a second red bean lies in the bag.") }),
                 )
             }),
-        Event("dream", "dream", Tx("Сон", "A Dream"), cond = { val n = g.nakaz; fire(n != null && !n.done && g.year - n.y >= 6 && g.year - (n.nag ?: n.y) >= 5 && chance(.4)) },
+        Event("dream", "dream", Tx("Сон", "A Dream"), cond = { fire(dreamDue()) },
             txt = { val n = g.nakaz!!; n.nag = g.year; pick(listOf(t("Снится покойный предок — ${n.by}. Стоит у очага, смотрит с укором: «${n.t}». И уходит, не оглядываясь.", "You dream of an ancestor long dead: ${n.by}, standing by the hearth with a look of reproach. “${n.t}.” Then gone, without a backward glance."), t("Во сне вы снова ребёнком сидите у очага, а напротив — ${n.by}. Не ест, только смотрит и повторяет: «${n.t}».", "In the dream you are a child again by the hearth, and across from you sits ${n.by}, who does not eat, only looks at you and repeats: “${n.t}.”"), t("За ставнем — голос предка, ${n.by}, тихий, как ветер в соломе: «${n.t}». Утром на подоконнике сырая земля.", "Beyond the shutter, an ancestor's voice, ${n.by}, soft as wind in thatch: “${n.t}.” In the morning there is damp earth on the sill."))) },
             opts = { o ->
                 listOf(
