@@ -54,7 +54,7 @@ object Japan : Land("edo") {
     )
     override val helpFeud get() = t("Вражда с соседями Курокава. Чем она выше, тем чаще они мстят. Помирить может свадьба или уступка.",
         "The feud with the Kurokawas next door. The higher it runs, the more often they take revenge. A wedding or a concession can mend it.")
-    override val helpHeart get() = t("Сердце — люди, староста, торг, мир с соседями.", "Heart: people, the headman, trade, peace with the neighbours.")
+    override val helpHeart get() = t("Сердце — люди, староста, торг, мир с соседями.", "Heart: people, the headman, trade, peace with the neighbors.")
 
     override fun family(g: Game) = g.stem
     override fun surname(g: Game, p: Person) = g.stem
@@ -117,15 +117,21 @@ object Japan : Land("edo") {
                 ok = { t("Вы жгли благовония и кипятили воду, как велел монах. Холера обошла ваш дом.", "You burned incense and boiled the water, as the monk told you. The cholera passed your house.") },
                 bad = { val c = killOne(true); if (c != null) { kill(c, die); t("Не уберегли: ${c.name}.", "Prayer was not enough. ${c.name} is gone.") } else t("Переболели все, но выжили.", "Everyone caught it and everyone lived.") }),
             Opt(t("Ходить за больными соседями", "Nurse the sick next door"), roll = Roll(ZDR, -2, mapOf("dobr" to 2, "hrab" to 1)),
-                ok = { o -> glory(3); deed(o.h, t(sx(o.h, "Выхаживал", "Выхаживала") + " соседей в поветрие", "Nursed the neighbours through the sickness")); t("Вас обходит даже поветрие. В деревне говорят: святой человек.", "Even the sickness steps around you. The village says you must be a saint.") },
+                ok = { o -> glory(3); deed(o.h, t(sx(o.h, "Выхаживал", "Выхаживала") + " соседей в поветрие", "Nursed the neighbors through the sickness")); t("Вас обходит даже поветрие. В деревне говорят: святой человек.", "Even the sickness steps around you. The village says you must be a saint.") },
                 bad = { o -> if (chance(.5)) { kill(o.h, die); t("Заразились у соседей.", "You caught it next door.") } else { addTr(o.h, "hvor"); t("Заразились, но выжили. Здоровье уже не то.", "You caught it and lived, but your health is not what it was.") } }),
         )
     }
 
     override val forced = listOf(
         Event("match", "wedding", Tx("Накодо", "The Go-Between"), cond = { h -> fire(age(h) in 16..49 && !married(h) && h.away == null && g.year >= g.noMatch) },
-            txt = { o -> t("Накодо, тётушка Сигэ, кладёт на циновку три свёртка с именами — по одному на ${sx(o.h, "каждую невесту", "каждого жениха")}. «Выбирай, ${o.h.name}. Что видно — то видно. А что за ширмой — узнаешь после свадебной чарки».",
-                "Aunt Shige, the go-between, lays three folded papers on the mat, one for each ${sx(o.h, "bride", "groom")}. “Choose, ${o.h.name}. What you can see, you can see. What is behind the screen you will learn after the wedding cup.”") },
+            txt = { o -> pick(listOf(
+                t("Накодо, тётушка Сигэ, кладёт на циновку три свёртка с именами — по одному на ${sx(o.h, "каждую невесту", "каждого жениха")}. «Выбирай, ${o.h.name}. Что видно — то видно. А что за ширмой — узнаешь после свадебной чарки».",
+                    "Aunt Shige, the go-between, lays three folded papers on the mat, one for each ${sx(o.h, "bride", "groom")}. “Choose, ${o.h.name}. What you can see, you can see. What is behind the screen you will learn after the wedding cup.”"),
+                t("Тётушка Сигэ пришла с рисовыми лепёшками и тремя свёртками за пазухой. «Одному в доме не прожить, ${o.h.name}: и рис некому сажать, и предков некому поминать. Вот, смотри. Что за ширмой — узнаешь после свадебной чарки».",
+                    "Aunt Shige has come with rice cakes and three folded papers in her robe. “No one can live alone in a house, ${o.h.name}: there's no one to plant the rice and no one to remember the ancestors. Here, look. What is behind the screen you will learn after the wedding cup.”"),
+                t("Накодо обмахивается веером и выкладывает три свёртка, как карты. «По всей долине искала, ${o.h.name}. Лицо и норов — что видно, то видно. А остальное, как водится, за ширмой».",
+                    "The go-between fans herself and lays out three folded papers like playing cards. “I searched the whole valley, ${o.h.name}. Face and temper, what you see is what you get. The rest, as always, is behind the screen.”"),
+            )) },
             opts = { o -> matchOpts(this, o, t("мон", "mon"), t("что-то за ширмой", "something behind the screen")) { p, _ ->
                 var s = t("Трижды по три глотка из свадебных чашечек — и ${p.name} ${sx(p, "вошёл в дом", "вошла в дом")}${if (p.dw > 0) " с приданым" else ""}.",
                     "Three sips from three wedding cups, and ${p.name} came into the house${if (p.dw > 0) " with a dowry" else ""}.")
@@ -135,8 +141,15 @@ object Japan : Land("edo") {
                     fx = { g.noMatch = g.year + 3; t("Тётушка Сигэ поджала губы, допила чай и ушла.", "Aunt Shige pursed her lips, finished her tea and left.") }) }),
         Event("edu", "interior", Tx("К какому делу?", "What Work?"), cond = { fire(kidIn(7, 11) { it.edu == null }.firstOrNull()) },
             txt = { o -> val x = o.xx
-                t("${x.name}${if (x.bast) " (незаконн" + sx(x, "ый", "ая") + ")" else ""} уже ${yrs(age(x))}. Пора решать, к какому делу ${sx(x, "его", "её")} приставить. От этого зависит, ${sx(x, "каким он", "какой она")} вырастет.",
-                    "${x.name}${if (x.bast) " (born out of wedlock)" else ""} is ${age(x)} now. Time to decide what work to put ${sx(x, "him", "her")} to. It will shape what kind of ${sx(x, "man", "woman")} ${sx(x, "he", "she")} grows into.") },
+                val b = if (x.bast) t(" (незаконн" + sx(x, "ый", "ая") + ")", " (born out of wedlock)") else ""
+                pick(listOf(
+                    t("${x.name}$b уже ${yrs(age(x))}. Пора решать, к какому делу ${sx(x, "его", "её")} приставить. От этого зависит, ${sx(x, "каким он", "какой она")} вырастет.",
+                        "${x.name}$b is ${age(x)} now. Time to decide what work to put ${sx(x, "him", "her")} to. It will shape what kind of ${sx(x, "man", "woman")} ${sx(x, "he", "she")} grows into."),
+                    t("${x.name}$b ${sx(x, "вырос", "выросла")} из детской куртки и целыми днями гоняет стрекоз у канала. Пора к делу: какое дело — таким и человек.",
+                        "${x.name}$b has outgrown the little jacket and spends whole days chasing dragonflies by the canal. Time for some work: the work makes the person."),
+                    t("Старики говорят: до семи лет дитя принадлежит богам, а после — людям. ${x.name}$b ${sx(x, "вошёл", "вошла")} в этот возраст. Куда ${sx(x, "его", "её")} отдать?",
+                        "The old people say a child belongs to the gods until seven, and to people after that. ${x.name}$b has reached that age. Where shall ${sx(x, "he", "she")} be put to work?"),
+                )) },
             opts = { o ->
                 val x = o.xx
                 listOf(
@@ -181,7 +194,11 @@ object Japan : Land("edo") {
             }),
         Event("dream", "dream", Tx("Сон", "A Dream"), cond = { val n = g.nakaz; fire(n != null && !n.done && g.year - n.y >= 6 && g.year - (n.nag ?: n.y) >= 5 && chance(.4)) },
             txt = { val n = g.nakaz!!; n.nag = g.year
-                t("Снится покойный предок — ${n.by}. Сидит у домашнего алтаря, смотрит с укором: «${n.t}». И уходит, не оглядываясь.", "You dream of ${n.by}, long dead. ${n.by} sits by the house altar and looks at you in reproach: “${n.t}.” Then gets up and goes, without looking back.") },
+                pick(listOf(
+                    t("Снится покойный предок — ${n.by}. Сидит у домашнего алтаря, смотрит с укором: «${n.t}». И уходит, не оглядываясь.", "You dream of ${n.by}, long dead. ${n.by} sits by the house altar and looks at you in reproach: “${n.t}.” Then gets up and goes, without looking back."),
+                    t("Во сне вы стоите по колено в рисовом чеке, а на меже — покойный предок, ${n.by}, такой же, как при жизни, только без тени. «${n.t}», — говорит предок и уходит в туман.", "In the dream you stand knee-deep in a paddy, and on the bank stands ${n.by}, long dead, just as in life, only casting no shadow. “${n.t},” says your ancestor, and walks off into the mist."),
+                    t("Ночью кто-то черпает воду из колодца. Вы выглядываете — это ${n.by}, давно покойный предок. Не оборачиваясь, предок говорит: «${n.t}». Ведро падает в колодец, и вы просыпаетесь.", "In the night someone is drawing water from the well. You look out: it is ${n.by}, long dead. Without turning round, your ancestor says: “${n.t}.” The bucket falls into the well, and you wake."),
+                )) },
             opts = { o ->
                 listOf(
                     Opt(t("Проснуться в холодном поту", "Wake in a cold sweat"), tag = t("камень на душу", "a stone on the soul"), fx = { o.h.stones++; t("До утра так и не уснули.", "You did not sleep again till morning.") }),
@@ -191,8 +208,12 @@ object Japan : Land("edo") {
     )
 
     override val events = listOf(
-        Event("fire", "fire", Tx("Пожар", "Fire"), w = 2, cond = { yes },
-            txt = { t("Ночью у соседей опрокинулась жаровня. Ветер несёт искры прямо на вашу соломенную крышу.", "In the night a brazier tipped over next door. The wind is carrying sparks straight onto your thatch.") },
+        Event("fire", "fire", Tx("Пожар", "Fire"), cond = { yes },
+            txt = { pick(listOf(
+                t("Ночью у соседей опрокинулась жаровня. Ветер несёт искры прямо на вашу соломенную крышу.", "In the night a brazier tipped over next door. The wind is carrying sparks straight onto your thatch."),
+                t("В грозу молния ударила в старую криптомерию у дома, и горящие ветки сыплются на вашу соломенную крышу.", "In a thunderstorm lightning struck the old cedar by the house, and burning branches are falling onto your thatch."),
+                t("Из соседской бани вырвался огонь. Сухой зимний ветер гонит искры прямо на вашу соломенную крышу.", "Fire has broken out of the bathhouse next door. The dry winter wind is driving the sparks straight onto your thatch."),
+            )) },
             opts = { o ->
                 val h = o.h
                 listOf(
@@ -200,18 +221,24 @@ object Japan : Land("edo") {
                         ok = { deed(h, t(sx(h, "Отстоял", "Отстояла") + " дом от пожара", "Saved the house from fire")); t("Крышу отстояли. Обгорели брови, зато цел дом.", "The roof held. You lost your eyebrows and kept the house.") },
                         bad = { money(-part(.4)); if (g.dvor > 0) g.dvor--; addTr(h, "shram"); t("Дом сгорел дотла, вы сами еле спрыгнули. Ставить всё заново.", "The house burned to the ground and you barely jumped clear. Everything must be built again.") }),
                     Opt(t("Выносить детей и домашний алтарь", "Carry out the children and the house altar"), roll = Roll(VER, 2, mapOf("dobr" to 1)),
-                        ok = { money(-part(.3)); t("Все живы, таблички предков целы. Дом сгорел, но соседи помогли бамбуком и балками.", "Everyone is alive and the ancestor tablets are safe. The house is gone, but the neighbours brought bamboo and beams.") },
+                        ok = { money(-part(.3)); t("Все живы, таблички предков целы. Дом сгорел, но соседи помогли бамбуком и балками.", "Everyone is alive and the ancestor tablets are safe. The house is gone, but the neighbors brought bamboo and beams.") },
                         bad = { money(-part(.3)); val v = house().filter { it.id != g.head && age(it) < 10 }
                             if (v.isNotEmpty()) { val c = pick(v); kill(c, t("сгорел" + sx(c, "", "а") + " на пожаре", "burned in a fire")); t("В дыму не нашли ребёнка — ${c.name}…", "In the smoke you could not find ${c.name}…") }
                             else t("Таблички предков сгорели. Старики говорят, это худой знак.", "The ancestor tablets burned. The old people say that is a bad sign.") }),
                     Opt(t("Бить в пожарный колокол", "Ring the fire bell"), roll = Roll(SER, 0, mapOf("dobr" to 1, "kras" to 1)),
-                        ok = { glory(1); t("Деревня встала цепью с вёдрами от канала. Сгорел только соседский сарай.", "The village formed a bucket line from the canal. Only the neighbours' shed burned.") },
+                        ok = { glory(1); t("Деревня встала цепью с вёдрами от канала. Сгорел только соседский сарай.", "The village formed a bucket line from the canal. Only the neighbors' shed burned.") },
                         bad = { money(-part(.3)); t("Пока сбегались, занялся и ваш дом.", "By the time they came running, your house had caught too.") }),
                 )
             }),
-        Event("fair", "fair", Tx("Храмовая ярмарка", "The Temple Fair"), w = 2, cond = { h -> fire(age(h) >= 14) },
-            txt = { t("У храма праздник и ярмарка: хлопок, лаковые гребни, сушёный кальмар, кукольный театр, а продавец жабьего масла режет себе руку и тут же мажет — зажило!",
-                "Festival day at the temple, and a fair: cotton, lacquer combs, dried squid, a puppet show, and a man selling toad oil who cuts his own arm and rubs it in. Healed!") },
+        Event("fair", "fair", Tx("Храмовая ярмарка", "The Temple Fair"), cond = { h -> fire(age(h) >= 14) },
+            txt = { pick(listOf(
+                t("У храма праздник и ярмарка: хлопок, лаковые гребни, сушёный кальмар, кукольный театр, а продавец жабьего масла режет себе руку и тут же мажет — зажило!",
+                    "Festival day at the temple, and a fair: cotton, lacquer combs, dried squid, a puppet show, and a man selling toad oil who cuts his own arm and rubs it in. Healed!"),
+                t("Новогодний торг у храма: соломенные обереги для ворот, сушёная хурма, бумажные змеи, барабаны. Скупщик из ${if (g.year < 1868) "Эдо" else "Токио"} берёт хлопок оптом.",
+                    "The New Year market at the temple: straw charms for the gate, dried persimmons, paper kites, drums. A buyer from ${if (g.year < 1868) "Edo" else "Tokyo"} is taking cotton in bulk."),
+                t("Осенняя ярмарка: гадатель с черепахой, акробаты на шестах, жареные каштаны. Перекупщики ходят меж рядов и щупают ваш хлопок, как лошадь на торгу.",
+                    "The autumn fair: a fortune-teller with a tortoise, acrobats on poles, roast chestnuts. The dealers walk the rows and finger your cotton like a horse at market."),
+            )) },
             opts = { o ->
                 listOf(
                     Opt(t("Торговаться до хрипоты", "Haggle till you're hoarse"), roll = Roll(HIT, 0, mapOf("lzh" to 1, "gor" to 1)),
@@ -224,8 +251,12 @@ object Japan : Land("edo") {
                         fx = { money(-minOf(5, g.money)); if (chance(.35) && addTr(o.h, "pyan")) t("Гуляли три дня. С ярмарки вы вернулись с больной головой и новой привычкой.", "Three days of it. You came home with a sore head and a new habit.") else t("Гуляли три дня. Купили детям бумажные вертушки и леденцового журавля.", "Three days of it. You bought the children paper pinwheels and a candy crane.") }),
                 )
             }),
-        Event("beggar", "road", Tx("Монахиня у ворот", "A Nun at the Gate"), w = 2, cond = { h -> fire(age(h) >= 14) },
-            txt = { t("Странствующая монахиня в соломенной шляпе просит горсть риса. Глаза у неё жёлтые — такие, говорят, были у той лисы.", "A wandering nun in a straw hat asks for a handful of rice. Her eyes are amber; the fox's were that colour, they say.") },
+        Event("beggar", "road", Tx("Монахиня у ворот", "A Nun at the Gate"), cond = { h -> fire(age(h) >= 14) },
+            txt = { pick(listOf(
+                t("Странствующая монахиня в соломенной шляпе просит горсть риса. Глаза у неё жёлтые — такие, говорят, были у той лисы.", "A wandering nun in a straw hat asks for a handful of rice. Her eyes are amber; the fox's were that color, they say."),
+                t("В сумерках у ворот звякает посох: странствующая монахиня просит горсть риса. Тень у неё на стене длиннее, чем надо, и будто с хвостом. Или показалось.", "At dusk a staff jingles at the gate: a wandering nun asks for a handful of rice. Her shadow on the wall is longer than it should be, and seems to have a tail. Or so it seemed."),
+                t("Под дождём у ворот стоит монахиня, совсем молоденькая, с колокольчиком. Просит горсть риса и ночлег. Собака на неё не лает — только смотрит.", "A nun stands in the rain at the gate, very young, with a little bell. She asks for a handful of rice and a place to sleep. The dog does not bark at her; it only stares."),
+            )) },
             opts = { o ->
                 listOf(
                     Opt(t("Накормить и оставить ночевать", "Feed her and give her a bed"), cost = 1, tag = t("1 мон", "1 mon"),
@@ -236,7 +267,11 @@ object Japan : Land("edo") {
                 )
             }),
         Event("meja", "meja", Tx("Межевые колья", "The Boundary Stakes"), w = 2, cond = { h -> fire(age(h) >= 15) },
-            txt = { t("Курокава ночью переставили межевые колья на шаг в ваш рисовый чек.", "In the night the Kurokawas moved the boundary stakes a step into your paddy.") },
+            txt = { pick(listOf(
+                t("Курокава ночью переставили межевые колья на шаг в ваш рисовый чек.", "In the night the Kurokawas moved the boundary stakes a step into your paddy."),
+                t("Утром межевые колья стоят на шаг глубже в вашем чеке, а у Курокавы на сандалиях свежая грязь.", "This morning the boundary stakes stand a step deeper in your paddy, and there is fresh mud on the Kurokawas' sandals."),
+                t("Курокава перекопали канаву между чеками и заодно передвинули колья: «так вода лучше идёт». Идёт она теперь по вашему шагу земли.", "The Kurokawas have re-dug the ditch between the paddies and moved the stakes while they were at it: “the water runs better this way.” It runs over a step of your land now."),
+            )) },
             opts = { o ->
                 listOf(
                     Opt(t("Идти к старосте и в управу", "Take it to the headman and the steward"), roll = Roll(UM, 0, mapOf("gram" to 2)),
@@ -260,7 +295,10 @@ object Japan : Land("edo") {
                 )
             }),
         Event("revenge", "night_int", Tx("Месть Курокавы", "The Kurokawas' Revenge"), w = 3, cond = { fire(g.feud >= 3) },
-            txt = { t("Ночью кто-то подпёр вашу дверь колом и бросил на соломенную крышу горящий пук.", "In the night someone wedged your door shut and threw a burning bundle onto the thatch.") },
+            txt = { pick(listOf(
+                t("Ночью кто-то подпёр вашу дверь колом и бросил на соломенную крышу горящий пук.", "In the night someone wedged your door shut and threw a burning bundle onto the thatch."),
+                t("Ночью в сарае вспыхнула солома, а у плетня мелькнули две тени — в сторону дома Курокавы.", "In the night the straw in your shed went up in flames, and two shadows slipped past the fence, heading for the Kurokawas' house."),
+            )) },
             opts = { o ->
                 val h = o.h
                 listOf(
@@ -282,17 +320,23 @@ object Japan : Land("edo") {
         Event("plague", "plague", Tx("Оспа", "Smallpox"), cond = { yes },
             txt = { t("В округе оспа. В соседней деревне за месяц сожгли на погребальных кострах сорок человек.", "Smallpox in the district. In the next village they have cremated forty people this month.") },
             opts = { plague(this, false, true) }),
-        Event("hunger", "field_dry", Tx("Недород", "A Lean Year"), w = 2, cond = { yes },
-            txt = { t("Холодное лето: рис так и не налился. До весны не дотянуть.", "A cold summer: the rice never filled out. There is not enough to last till spring.") },
+        Event("hunger", "field_dry", Tx("Недород", "A Lean Year"), cond = { yes },
+            txt = { pick(listOf(
+                t("Холодное лето: рис так и не налился. До весны не дотянуть.", "A cold summer: the rice never filled out. There is not enough to last till spring."),
+                t("В августе налетела саранча. Рис стоит пустой, одни метёлки. До весны не дотянуть.", "In August the locusts came. The rice stands empty, nothing but husks. There is not enough to last till spring."),
+                t("Дожди шли всё лето, и рис сгнил на корню. В амбаре пусто, а до весны далеко.", "It rained all summer, and the rice rotted where it stood. The storehouse is empty, and spring is far off."),
+            )) },
             opts = { o ->
                 val h = o.h
                 listOf(
                     Opt(t("Продать вола", "Sell the ox"), tag = t("−4 мон", "−4 mon"), fx = { money(-4); t("Вола увели на рынок. Детей кормили кашей из проса и корнями папоротника.", "The ox went to market. The children lived on millet gruel and fern root.") }),
+                ) + (if (flagged("imo")) listOf(Opt(t("Перебиться сладким картофелем", "Get by on sweet potatoes"), tag = t("−1 мон", "−1 mon"),
+                    fx = { money(-1); t("Клубни со склона, что когда-то посадили в годы Кёхо, кормили всю зиму. Вол остался в хлеву.", "The tubers from the slope, first planted in the Kyoho years, fed you all winter. The ox stayed in the byre.") })) else emptyList()) + listOf(
                     Opt(t("Просить в долг у богатого дома", "Ask the rich house for a loan"), roll = Roll(SER, 0, mapOf("krot" to 1, "kras" to 1)),
                         ok = { money(2); t("Хозяин сакэварни дал риса в долг под осеннюю работу.", "The brewer lent you rice against next autumn's work.") },
                         bad = { money(-3); val c = killOne(true); if (c != null && chance(.5)) { kill(c, t("голод", "hunger")); t("Хозяин был не в духе. К весне не стало: ${c.name}.", "The brewer was in a bad mood. By spring ${c.name} was gone.") } else t("Хозяин был не в духе. Пережили на рисовых отрубях.", "The brewer was in a bad mood. You lived on rice bran.") }),
                     Opt(t("Ночью взять из налоговой кладовой", "Take from the tax storehouse at night"), sin = "lie", roll = Roll(HIT, -1, mapOf("lzh" to 1)),
-                        ok = { money(4); addSecret(t("${h.name} в недород ${sx(h, "воровал", "воровала")} рис из налоговой кладовой", "${h.name} stole rice from the tax storehouse in the lean year"), h); t("Три мешка. Никто не хватился.", "Three sacks. Nobody missed them.") },
+                        ok = { money(4); flag("tax_rice"); addSecret(t("${h.name} в недород ${sx(h, "воровал", "воровала")} рис из налоговой кладовой", "${h.name} stole rice from the tax storehouse in the lean year"), h); t("Три мешка. Никто не хватился.", "Three sacks. Nobody missed them.") },
                         bad = { money(-3); addTr(h, "shram"); glory(-2); t("Поймали. Били палками перед управой, а имя вывесили на доске.", "Caught. Beaten with staves in front of the office, your name posted on the notice board.") }),
                 )
             }),
@@ -306,7 +350,7 @@ object Japan : Land("edo") {
                     Opt(t("Отдать храму", "Give it to the temple"), fx = { glory(3); addRelic(t("Храмовый оберег", "The temple charm"), "omamori", mapOf(VER to 1), t("${h.name}: клад отдан храму, настоятель подарил оберег", "${h.name}: the hoard went to the temple; the abbot gave this charm")); t("Настоятель благословил вас и подарил оберег в парчовом мешочке. Вера +1 в жребиях.", "The abbot blessed you and gave you a charm in a brocade bag. Faith +1 in draws.") }),
                 )
             }),
-        Event("secret", "interior", Tx("Старая тайна", "An Old Secret"), w = 3, cond = { val s = g.secrets.firstOrNull(); if (s != null && g.year - s.y >= 3) Fire(s = s) else null },
+        Event("secret", "interior", Tx("Старая тайна", "An Old Secret"), w = 2, cond = { val s = g.secrets.firstOrNull(); if (s != null && g.year - s.y >= 3) Fire(s = s) else null },
             txt = { o -> val x = o.s!!
                 t("По деревне шепчутся: ${x.t}. Дело было ${yrs(g.year - x.y)} назад${if (x.who != o.h.name) ", и того человека давно нет, но спрашивают с вас" else ""}.",
                     "The village is whispering: ${x.t}. It was ${yr(g.year - x.y)} ago${if (x.who != o.h.name) ", and that person is long gone, but it is you they ask" else ""}.") },
@@ -327,19 +371,23 @@ object Japan : Land("edo") {
                 val h = o.h
                 listOf(
                     Opt(t("Признать и взять в дом", "Own him and take him in"), fx = { val c = bastard(this, h); val s = spouseOf(h); t("${c.name} теперь спит у очага с остальными.${if (s != null) " " + s.name + " неделю не разговаривала с вами." else ""}", "${c.name} sleeps by the hearth with the others now.${if (s != null) " " + s.name + " did not speak to you for a week." else ""}") }),
-                    Opt(t("Отпереться", "Deny it"), sin = "lie", fx = { addSecret(t("сын вдовы О-Рин — от главы дома ${g.stem}", "O-Rin's boy was fathered by the head of the ${g.stem} house"), h); t("О-Рин промолчала. Но мальчик растёт, и глаза у него всё те же.", "O-Rin said nothing. But the boy is growing, and his eyes are still the same.") }),
-                    Opt(t("Тайком помогать деньгами", "Help with money, secretly"), cost = 4, tag = t("4 мон", "4 mon"), fx = { money(-4); addSecret(t("кто-то из дома ${g.stem} тайком носит деньги вдове О-Рин", "someone from the ${g.stem} house slips money to the widow O-Rin"), h); t("О-Рин взяла молча.", "O-Rin took it without a word.") }),
+                    Opt(t("Отпереться", "Deny it"), sin = "lie", fx = { flag("orin_boy"); flag("orin_f", h.id); addSecret(t("сын вдовы О-Рин — от главы дома ${g.stem}", "O-Rin's boy was fathered by the head of the ${g.stem} house"), h); t("О-Рин промолчала. Но мальчик растёт, и глаза у него всё те же.", "O-Rin said nothing. But the boy is growing, and his eyes are still the same.") }),
+                    Opt(t("Тайком помогать деньгами", "Help with money, secretly"), cost = 4, tag = t("4 мон", "4 mon"), fx = { money(-4); flag("orin_boy"); flag("orin_f", h.id); addSecret(t("кто-то из дома ${g.stem} тайком носит деньги вдове О-Рин", "someone from the ${g.stem} house slips money to the widow O-Rin"), h); t("О-Рин взяла молча.", "O-Rin took it without a word.") }),
                 )
             }),
-        Event("kabak", "tavern", Tx("Сакэ", "Sake"), w = 2, cond = { h -> fire(age(h) >= 16) },
-            txt = { o -> if (has(o.h, "pyan")) t("Ноги сами несут к харчевне у моста. Сосед уже машет из-за занавески.", "Your feet carry you to the eating-house by the bridge on their own. Your neighbour is already waving from behind the curtain.")
-                else t("Сосед зовёт в харчевню «на одну чашечку». Вы знаете, чем кончаются одни чашечки.", "Your neighbour asks you to the eating-house for “just one cup”. You know how one cup ends.") },
+        Event("kabak", "tavern", Tx("Сакэ", "Sake"), cond = { h -> fire(age(h) >= 16) },
+            txt = { o -> if (has(o.h, "pyan")) t("Ноги сами несут к харчевне у моста. Сосед уже машет из-за занавески.", "Your feet carry you to the eating-house by the bridge on their own. Your neighbor is already waving from behind the curtain.")
+                else pick(listOf(
+                    t("Сосед зовёт в харчевню «на одну чашечку». Вы знаете, чем кончаются одни чашечки.", "Your neighbor asks you to the eating-house for “just one cup”. You know how one cup ends."),
+                    t("В харчевне у моста открыли новый бочонок из Нады, и вся деревня уже там. Сосед стучит в ставень: «Одну чашечку — и домой».", "The eating-house by the bridge has broached a new keg from Nada, and the whole village is there already. Your neighbor knocks at the shutter: “One cup and home.”"),
+                    t("Свадьба у мельника, позвали всех. Чашечки там наливают раньше, чем успеешь поставить пустую.", "The miller is having a wedding, and everyone is invited. There they fill your cup before you can set the empty one down."),
+                )) },
             opts = { o ->
                 listOf(
                     Opt(t("Пойти", "Go"), roll = Roll(VER, 0, mapOf("pyan" to -3, "krot" to 1, "bogom" to 1)),
                         ok = { t("Выпили по чашечке, поговорили о погоде и разошлись.", "One cup each, some talk of the weather, and home.") },
                         bad = { if (!addTr(o.h, "pyan")) { money(-4); t("Пропили соломенный плащ и обе сандалии.", "You drank away your straw raincoat and both sandals.") } else t("Одна чашечка, вторая, десятая. Харчевня стала вам вторым домом.", "One cup, then two, then ten. The eating-house is your second home now.") }),
-                    Opt(t("Отказаться", "Say no"), fx = { if (has(o.h, "pyan")) { o.h.stones++; t("Отказались. Руки трясутся до вечера. Камень на душу.", "You said no. Your hands shook till evening. A stone on the soul.") } else t("Сосед обиделся, но к Новому году отошёл.", "Your neighbour sulked, but came round by the New Year.") }),
+                    Opt(t("Отказаться", "Say no"), fx = { if (has(o.h, "pyan")) { o.h.stones++; t("Отказались. Руки трясутся до вечера. Камень на душу.", "You said no. Your hands shook till evening. A stone on the soul.") } else t("Сосед обиделся, но к Новому году отошёл.", "Your neighbor sulked, but came round by the New Year.") }),
                 )
             }),
         Event("gramota", "church", Tx("Храмовая школа", "The Temple School"), cond = { h -> fire(!has(h, "gram") && age(h) in 12..45) },
@@ -353,8 +401,11 @@ object Japan : Land("edo") {
                     Opt(t("Не до того", "No time"), fx = { t("Учитель ушёл учить детей Курокавы.", "The teacher went off to teach the Kurokawa children.") }),
                 )
             }),
-        Event("wolves", "winter", Tx("Горные псы", "Mountain Dogs"), w = 2, cond = { fire(g.year < 1905) },
-            txt = { t("Зима лютая, снег по пояс. Горные псы — так здесь зовут волков — спустились к деревне и роют подкоп под хлев.", "A hard winter, snow to the waist. The mountain dogs, as the wolves are called here, have come down to the village and are digging under the byre.") },
+        Event("wolves", "winter", Tx("Горные псы", "Mountain Dogs"), cond = { fire(g.year < 1905) },
+            txt = { pick(listOf(
+                t("Зима лютая, снег по пояс. Горные псы — так здесь зовут волков — спустились к деревне и роют подкоп под хлев.", "A hard winter, snow to the waist. The mountain dogs, as the wolves are called here, have come down to the village and are digging under the byre."),
+                t("Ночью в хлеву закричал вол. Горные псы — так здесь зовут волков — пришли по снегу из леса и кружат у стены.", "In the night the ox bellowed in the byre. The mountain dogs, as the wolves are called here, have come out of the woods across the snow and are circling the wall."),
+            )) },
             opts = { o ->
                 listOf(
                     Opt(t("Сторожить с топором", "Keep watch with an axe"), roll = Roll(SIL, 0, mapOf("hrab" to 2, "trus" to -2)),
@@ -362,12 +413,16 @@ object Japan : Land("edo") {
                         bad = { money(-4); if (chance(.3)) addTr(o.h, "shram"); t("Волки зарезали вола, пока вы отбивались от вожака.", "The pack killed the ox while you were fighting off the leader.") }),
                     Opt(t("Вырыть ловчие ямы", "Dig pit traps"), roll = Roll(UM),
                         ok = { money(3); t("Три волка в ямах. Шкуры продали в городе.", "Three wolves in the pits. You sold the pelts in town.") },
-                        bad = { money(-2); t("В яму упала соседская собака.", "The neighbours' dog fell in.") }),
+                        bad = { money(-2); t("В яму упала соседская собака.", "The neighbors' dog fell in.") }),
                     Opt(t("Запереться и молиться", "Bar the door and pray"), fx = { money(-3); t("Утром хлев был пуст.", "In the morning the byre was empty.") }),
                 )
             }),
-        Event("sick", "night_int", Tx("Жар", "Fever"), w = 3, cond = { val k = kidIn(0, 9); fire(if (k.isEmpty()) null else pick(k)) },
-            txt = { o -> t("${o.xx.name} горит в жару третью ночь. Не ест, не узнаёт мать.", "${o.xx.name} has burned with fever three nights now. Won't eat, doesn't know ${sx(o.xx, "his", "her")} mother.") },
+        Event("sick", "night_int", Tx("Жар", "Fever"), w = 2, cond = { val k = kidIn(0, 9); fire(if (k.isEmpty()) null else pick(k)) },
+            txt = { o -> pick(listOf(
+                t("${o.xx.name} горит в жару третью ночь. Не ест, не узнаёт мать.", "${o.xx.name} has burned with fever three nights now. Won't eat, doesn't know ${sx(o.xx, "his", "her")} mother."),
+                t("${o.xx.name} кашляет так, что слышно через всю деревню, и горяч${sx(o.xx, "ий", "ая")}, как камень из очага.", "${o.xx.name} coughs so hard the whole village can hear, and is as hot as a stone from the hearth."),
+                t("У ${o.xx.name} сыпь и жар. Ребёнок бредит и зовёт кого-то, кого в доме нет.", "${o.xx.name} has a rash and a fever, and in delirium calls for someone who isn't in the house."),
+            )) },
             opts = { o ->
                 val x = o.xx
                 listOf(
@@ -392,6 +447,7 @@ object Japan : Land("edo") {
                 listOf(
                     Opt(t("Спрятать на сеновале", "Hide him in the loft"), roll = Roll(HIT, 0, mapOf("dobr" to 1, "lzh" to 1)),
                         ok = {
+                            flag("ronin_hid")
                             if (old) addRelic(t("Короткий меч ронина", "The ronin's short sword"), "katana", mapOf(SIL to 1), t("ронин оставил его в благодарность", "the ronin left it in thanks"))
                             else addRelic(t("Солдатский штык", "A soldier's bayonet"), "sword", mapOf(SIL to 1), t("беглый солдат оставил его в благодарность", "the runaway soldier left it in thanks"))
                             deed(h, t(sx(h, "Спрятал", "Спрятала") + " беглеца", "Hid a fugitive"))
@@ -401,7 +457,7 @@ object Japan : Land("edo") {
                     Opt(t("Дать риса и прогнать", "Give him rice and send him off"), fx = { t("Он ушёл в метель.", "He went off into the snow.") }),
                 )
             }),
-        Event("steward", "barin", Tx("Новый управляющий", "The New Steward"), w = 2, cond = { h -> fire(g.year < 1868 && age(h) >= 16) },
+        Event("steward", "barin", Tx("Новый управляющий", "The New Steward"), cond = { h -> fire(g.year < 1868 && age(h) >= 16) },
             txt = { t("Князь прислал из замка нового управляющего. Тот объявил: отныне подать — шесть мешков риса из десяти, а не пять.", "The lord has sent a new steward from the castle. He announces that from now on the tax is six sacks of rice in ten, not five.") },
             opts = { o ->
                 val h = o.h
@@ -411,12 +467,12 @@ object Japan : Land("edo") {
                         ok = { money(-4); glory(1); t("Управляющий уступил половину. Деревня кланялась вам в пояс.", "The steward gave back half. The village bowed to you to the waist.") },
                         bad = { money(-8); t("Управляющий даже не развернул свиток.", "The steward did not even unroll the scroll.") }),
                     Opt(t("Поднять деревню", "Raise the village"), roll = Roll(SIL, -3, mapOf("hrab" to 2, "gnev" to 1, "bog" to 1)),
-                        ok = { glory(3); deed(h, t(sx(h, "Поднял", "Подняла") + " деревню против управляющего", "Led the village against the steward")); t("Тысяча крестьян с бамбуковыми копьями стояла у замка три дня. Управляющего отозвали, подать вернули прежнюю.", "A thousand farmers with bamboo spears stood at the castle for three days. The steward was recalled and the old tax restored.") },
-                        bad = { if (chance(.4)) { kill(h, t("казнён" + sx(h, "", "а") + " как зачинщи" + sx(h, "к", "ца"), "executed as a ringleader")); t("Подать вернули прежнюю, а зачинщиков казнили у перекрёстка. Деревня до сих пор носит туда рисовые лепёшки.", "The old tax came back, and the ringleaders were executed at the crossroads. The village still leaves rice cakes there.") } else { addTr(h, "kalek"); glory(1); t("Зачинщиков били палками. Вы выжили, но ходите с клюкой.", "The ringleaders were beaten with staves. You lived, but you walk with a stick.") } }),
+                        ok = { glory(3); flag("ikki"); deed(h, t(sx(h, "Поднял", "Подняла") + " деревню против управляющего", "Led the village against the steward")); t("Тысяча крестьян с бамбуковыми копьями стояла у замка три дня. Управляющего отозвали, подать вернули прежнюю.", "A thousand farmers with bamboo spears stood at the castle for three days. The steward was recalled and the old tax restored.") },
+                        bad = { if (chance(.4)) { flag("gimin"); flag("gimin_id", h.id); kill(h, t("казнён" + sx(h, "", "а") + " как зачинщи" + sx(h, "к", "ца"), "executed as a ringleader")); t("Подать вернули прежнюю, а зачинщиков казнили у перекрёстка. Деревня до сих пор носит туда рисовые лепёшки.", "The old tax came back, and the ringleaders were executed at the crossroads. The village still leaves rice cakes there.") } else { addTr(h, "kalek"); glory(1); flag("ikki"); t("Зачинщиков били палками. Вы выжили, но ходите с клюкой.", "The ringleaders were beaten with staves. You lived, but you walk with a stick.") } }),
                 )
             }),
         Event("ise", "church", Tx("Паломничество в Исэ", "To Ise"), cond = { h -> fire(age(h) >= 16 && !has(h, "bogom")) },
-            txt = { t("Соседи идут в Исэ, к святилищу богини солнца. Говорят, кто хоть раз там побывал, тому и умирать не страшно. Зовут с собой.", "The neighbours are walking to Ise, to the shrine of the sun goddess. They say whoever has been there once is not afraid to die. They ask you along.") },
+            txt = { t("Соседи идут в Исэ, к святилищу богини солнца. Говорят, кто хоть раз там побывал, тому и умирать не страшно. Зовут с собой.", "The neighbors are walking to Ise, to the shrine of the sun goddess. They say whoever has been there once is not afraid to die. They ask you along.") },
             opts = { o ->
                 listOf(
                     Opt(t("Идти", "Go"), roll = Roll(ZDR, 2, mapOf("krot" to 1)),
@@ -469,12 +525,15 @@ object Japan : Land("edo") {
                         ok = { money(2); glory(1); t("Он записал вас в честные люди, и подать вышла справедливая.", "He wrote you down as honest people, and the tax came out fair.") },
                         bad = { money(-3); t("Честность обошлась в десятую часть урожая.", "Honesty cost you a tenth of the crop.") }),
                     Opt(t("Спрятать дальний чек", "Hide the far paddy"), sin = "lie", roll = Roll(HIT, -1, mapOf("lzh" to 1)),
-                        ok = { money(5); addSecret(t("у ${h.name} есть чек, которого нет в книгах управы", "${h.name} has a paddy that isn't in the tax books"), h); t("Смотритель не пошёл за ручей. Дальний чек кормит вас без подати.", "The inspector did not cross the stream. The far paddy feeds you tax-free.") },
+                        ok = { money(5); flag("hidden_paddy"); addSecret(t("у ${h.name} есть чек, которого нет в книгах управы", "${h.name} has a paddy that isn't in the tax books"), h); t("Смотритель не пошёл за ручей. Дальний чек кормит вас без подати.", "The inspector did not cross the stream. The far paddy feeds you tax-free.") },
                         bad = { money(-6); glory(-2); t("Курокава показали смотрителю тропку за ручей. Штраф — и позор на всю округу.", "The Kurokawas showed the inspector the path across the stream. A fine, and shame for the whole district to see.") }),
                 )
             }),
-        Event("flood", "field", Tx("Дамба", "The Dyke"), w = 2, cond = { yes },
-            txt = { t("Тайфун третий день гонит дождь. Река поднялась вровень с дамбой, и дамба потекла.", "The typhoon has driven rain for three days. The river is level with the dyke, and the dyke has started to leak.") },
+        Event("flood", "field", Tx("Дамба", "The Dyke"), cond = { yes },
+            txt = { pick(listOf(
+                t("Тайфун третий день гонит дождь. Река поднялась вровень с дамбой, и дамба потекла.", "The typhoon has driven rain for three days. The river is level with the dyke, and the dyke has started to leak."),
+                t("Ливень в горах: река вздулась за одну ночь и несёт брёвна, мостки и чьи-то ворота. Дамба потекла.", "A cloudburst in the hills: the river rose in a single night and is carrying logs, footbridges and somebody's gate. The dyke has started to leak."),
+            )) },
             opts = { o ->
                 val h = o.h
                 listOf(
@@ -509,7 +568,7 @@ object Japan : Land("edo") {
                     "The Oda house in the next village is rich, with three daughters and no son. The go-between has come to ask for your ${x.name} as an adopted son-in-law. He would take their name, their fields and their eldest daughter. To you he would be a son no longer.") },
             opts = { o ->
                 val x = o.xx
-                val go: Engine.() -> Unit = { x.monk = true; x.adopted = true; deed(x, t("Ушёл приёмным зятем в дом Ода", "Married into the Oda house and took its name")) }
+                val go: Engine.() -> Unit = { x.monk = true; x.adopted = true; flag("oda_son"); flag("oda_id", x.id); deed(x, t("Ушёл приёмным зятем в дом Ода", "Married into the Oda house and took its name")) }
                 listOf(
                     Opt(t("Согласиться", "Agree"), fx = { go(); money(10); glory(1); t("Свадьбу сыграли у них. Теперь ${x.name} кланяется вам как гость.", "The wedding was at their house. Now ${x.name} bows to you as a guest.") }),
                     Opt(t("Торговаться о подарках", "Bargain over the gifts"), roll = Roll(HIT, 0, mapOf("zhad" to 1, "gor" to 1)),
@@ -518,7 +577,7 @@ object Japan : Land("edo") {
                     Opt(t("Оставить сына при себе", "Keep your son"), fx = { t("Накодо допила чай и ушла.", "The go-between finished her tea and left.") }),
                 )
             }),
-    )
+    ) + japanMoreEvents
 
     override val history = listOf(
         Event("ako", "village", Tx("Сорок семь", "The Forty-Seven"), y0 = 1703, y1 = 1704, p = .8, cond = { h -> fire(age(h) >= 14) },
@@ -533,7 +592,7 @@ object Japan : Land("edo") {
                 )
             }),
         Event("fuji", "field_dry", Tx("Пепел Фудзи", "Ash from Fuji"), y0 = 1707, y1 = 1708, p = 1.0, cond = { yes },
-            txt = { t("Фудзи проснулась. Две недели с неба сыплется серый пепел, днём горят фонари, поля лежат как под грязным снегом.", "Fuji has woken. For two weeks grey ash has fallen from the sky; lanterns burn at noon, and the fields lie under something like dirty snow.") },
+            txt = { t("Фудзи проснулась. Две недели с неба сыплется серый пепел, днём горят фонари, поля лежат как под грязным снегом.", "Fuji has woken. For two weeks gray ash has fallen from the sky; lanterns burn at noon, and the fields lie under something like dirty snow.") },
             opts = { o ->
                 listOf(
                     Opt(t("Счищать пепел с полей", "Scrape the ash off the fields"), roll = Roll(SIL, 0, mapOf("bog" to 1, "hrab" to 1)),
@@ -578,7 +637,7 @@ object Japan : Land("edo") {
             opts = { o ->
                 listOf(
                     Opt(t("Наняться на стройку батарей", "Hire on to build the batteries"), fx = { money(4); addTr(o.h, "gor"); t("Полгода таскали землю в Синагаве. Варваров так и не увидели, а заработали хорошо.", "Half a year carrying earth at Shinagawa. You never saw a foreigner, but the pay was good.") }),
-                    Opt(t("Купить у разносчика гравюру с кораблём", "Buy a print of the ship from a pedlar"), cost = 1, tag = t("1 мон", "1 mon"), fx = { money(-1); glory(1); t("На гравюре у корабля лицо демона. Дети боятся, соседи ходят смотреть.", "On the print the ship has a demon's face. The children are afraid of it, and the neighbours come round to look.") }),
+                    Opt(t("Купить у разносчика гравюру с кораблём", "Buy a print of the ship from a pedlar"), cost = 1, tag = t("1 мон", "1 mon"), fx = { money(-1); glory(1); t("На гравюре у корабля лицо демона. Дети боятся, соседи ходят смотреть.", "On the print the ship has a demon's face. The children are afraid of it, and the neighbors come round to look.") }),
                     Opt(t("Жить как жили", "Carry on as before"), fx = { t("Рису всё равно, кто там в заливе.", "The rice does not care who is in the bay.") }),
                 )
             }),
@@ -594,7 +653,7 @@ object Japan : Land("edo") {
                         ok = { glory(3); money(2); addRelic(t("Боевой веер", "A war fan"), "fan", mapOf(SER to 1), t("${h.name}: подарен офицером в войну Босин", "${h.name}: a gift from an officer in the Boshin War")); deed(h, t(sx(h, "Ходил", "Ходила") + " с армией на север", "Marched north with the army")); t("Дошли до Айдзу и вернулись. Офицер на прощание подарил свой веер. Сердце +1 в жребиях.", "You got as far as Aizu and came home. The officer gave you his fan in parting. Heart +1 in draws.") },
                         bad = { if (chance(.5)) { kill(h, t("погиб" + sx(h, "", "ла") + " в войне Босин", "killed in the Boshin War")); t("Под Айдзу шальная пуля не разбирала, кто носильщик.", "At Aizu a stray bullet did not ask who was a porter.") } else { addTr(h, "kalek"); glory(1); t("Вернулись без пальцев на ноге, но живыми.", "You came back missing toes, but alive.") } }),
                     Opt(t("Отдать рис армии", "Give rice to the army"), cost = 5, tag = t("5 мон", "5 mon"), fx = { money(-5); glory(1); t("Рис ушёл на север. Расписку дали — на новой бумаге с новым гербом.", "The rice went north. They gave you a receipt, on new paper with a new crest.") }),
-                    Opt(t("Уйти в горы", "Go up into the hills"), sin = "coward", fx = { t("Война прошла стороной. А соседи запомнили.", "The war passed by. The neighbours remembered.") }),
+                    Opt(t("Уйти в горы", "Go up into the hills"), sin = "coward", fx = { t("Война прошла стороной. А соседи запомнили.", "The war passed by. The neighbors remembered.") }),
                 )
             }),
         Event("chiso", "village", Tx("Земельная грамота", "The Land Certificate"), y0 = 1873, y1 = 1875, p = 1.0, cond = { yes },
@@ -620,23 +679,23 @@ object Japan : Land("edo") {
                     Opt(t("Пойти с женщинами к рисоторговцу", "Go with the women to the rice dealer"), roll = Roll(SIL, -1, mapOf("hrab" to 1, "dobr" to 1)),
                         ok = { money(3); glory(1); t("Торговец открыл склад и продавал по старой цене.", "The dealer opened his warehouse and sold at the old price.") },
                         bad = { money(-4); addTr(h, "shram"); t("Приехала полиция, потом солдаты. Вам разбили голову.", "The police came, then the soldiers. Your head was split open.") }),
-                    Opt(t("Продать свой рис по новой цене", "Sell your own rice at the new price"), sin = "greed", fx = { money(6); glory(-1); t("Деньги хорошие. Соседи запомнили.", "Good money. The neighbours remembered.") }),
-                    Opt(t("Поделиться рисом с соседями", "Share your rice with the neighbours"), cost = 3, tag = t("3 мон", "3 mon"), fx = { money(-3); glory(2); t("В вашем переулке никто не голодал.", "Nobody in your lane went hungry.") }),
+                    Opt(t("Продать свой рис по новой цене", "Sell your own rice at the new price"), sin = "greed", fx = { money(6); glory(-1); t("Деньги хорошие. Соседи запомнили.", "Good money. The neighbors remembered.") }),
+                    Opt(t("Поделиться рисом с соседями", "Share your rice with the neighbors"), cost = 3, tag = t("3 мон", "3 mon"), fx = { money(-3); glory(2); t("В вашем переулке никто не голодал.", "Nobody in your lane went hungry.") }),
                 )
             }),
         Event("kanto", "fire", Tx("Великое землетрясение", "The Great Earthquake"), y0 = 1923, y1 = 1923, p = .8, cond = { h -> fire(age(h) >= 14) },
-            txt = { t("Первое сентября, перед полуднем, когда во всех домах разжигали жаровни к обеду. Земля ходила волнами. Токио и Иокогама горят. К вечеру ползут слухи, будто корейцы травят колодцы, и на дорогах встают дружины с бамбуковыми копьями.", "The first of September, just before noon, when every house was lighting its brazier for lunch. The ground moved in waves. Tokyo and Yokohama are burning. By evening a rumour is spreading that Koreans are poisoning the wells, and vigilante gangs with bamboo spears are stopping people on the roads.") },
+            txt = { t("Первое сентября, перед полуднем, когда во всех домах разжигали жаровни к обеду. Земля ходила волнами. Токио и Иокогама горят. К вечеру ползут слухи, будто корейцы травят колодцы, и на дорогах встают дружины с бамбуковыми копьями.", "The first of September, just before noon, when every house was lighting its brazier for lunch. The ground moved in waves. Tokyo and Yokohama are burning. By evening a rumor is spreading that Koreans are poisoning the wells, and vigilante gangs with bamboo spears are stopping people on the roads.") },
             opts = { o ->
                 val h = o.h
                 listOf(
-                    Opt(t("Откапывать соседей из-под балок", "Dig the neighbours out of the rubble"), roll = Roll(SIL, 0, mapOf("hrab" to 2, "bog" to 1)),
+                    Opt(t("Откапывать соседей из-под балок", "Dig the neighbors out of the rubble"), roll = Roll(SIL, 0, mapOf("hrab" to 2, "bog" to 1)),
                         ok = { glory(2); deed(h, t(sx(h, "Откапывал", "Откапывала") + " людей после землетрясения", "Dug people out after the earthquake")); t("Вытащили шестерых. Двое из них — дети Курокавы.", "You pulled out six people. Two were Kurokawa children.") },
                         bad = { if (chance(.3)) { kill(h, t("погиб" + sx(h, "", "ла") + " при землетрясении", "killed in the earthquake")); t("Второй толчок обрушил крышу.", "An aftershock brought the roof down.") } else { addTr(h, "shram"); money(-4); t("Балка рухнула вам на плечо. Дом треснул.", "A beam came down on your shoulder. The house is cracked through.") } }),
                     Opt(t("Бежать с детьми на открытое место", "Run with the children to open ground"), roll = Roll(UM, 0, mapOf("gor" to 1)),
                         ok = { t("Все живы. За спиной два дня горел город.", "Everyone is alive. Behind you the city burned for two days.") },
                         bad = { money(-part(.5)); val c = killOne(false); if (c != null) { kill(c, t("погиб" + sx(c, "", "ла") + " в пожаре после землетрясения", "died in the fires after the earthquake")); t("В толпе потеряли: ${c.name}.", "In the crowd you lost ${c.name}.") } else t("Огонь забрал половину добра.", "The fire took half of what you owned.") }),
-                    Opt(t("Спрятать соседа-корейца от дружинников", "Hide your Korean neighbour from the vigilantes"), roll = Roll(HIT, 0, mapOf("dobr" to 1, "hrab" to 1)),
-                        ok = { glory(1); deed(h, t(sx(h, "Спрятал", "Спрятала") + " соседа от самосуда", "Hid a neighbour from a lynch mob")); t("Три дня он сидел у вас в дровяном сарае. Дружинники приходили дважды и ушли ни с чем.", "For three days he sat in your woodshed. The gang came twice and left with nothing.") },
+                    Opt(t("Спрятать соседа-корейца от дружинников", "Hide your Korean neighbor from the vigilantes"), roll = Roll(HIT, 0, mapOf("dobr" to 1, "hrab" to 1)),
+                        ok = { glory(1); deed(h, t(sx(h, "Спрятал", "Спрятала") + " соседа от самосуда", "Hid a neighbor from a lynch mob")); t("Три дня он сидел у вас в дровяном сарае. Дружинники приходили дважды и ушли ни с чем.", "For three days he sat in your woodshed. The gang came twice and left with nothing.") },
                         bad = { addTr(h, "shram"); t("Его нашли. Вас избили за то, что прятали, его увели. Вы так и не узнали, что с ним стало.", "They found him. You were beaten for hiding him, and he was taken away. You never learned what became of him.") }),
                 )
             }),
@@ -657,5 +716,5 @@ object Japan : Land("edo") {
                     Opt(t("Уехать в город", "Move to the city"), fx = { money(5); addTr(o.h, "gor"); t("Город отстраивается из пепла. Руки нужны везде.", "The city is rebuilding from the ashes. Every pair of hands is wanted.") }),
                 )
             }),
-    )
+    ) + japanMoreHistory
 }
