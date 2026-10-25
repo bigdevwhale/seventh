@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The bag of beans with a red cord, a white bean of luck rising out of it. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#FFCF9F5C" android:strokeColor="#FFF5EACB" android:strokeWidth="2"
+        android:pathData="M37,80 C29,74 29,61 37,53 L44,48 L64,48 L71,53 C79,61 79,74 71,80 Z" />
+    <path android:fillColor="#FFDCAE6C" android:strokeColor="#FFF5EACB" android:strokeWidth="2"
+        android:pathData="M44,48 L41,41 L67,41 L64,48 Z" />
+    <path android:fillColor="#FF3A2614" android:pathData="M42,41 a12,2.6 0 1,0 24,0 a12,2.6 0 1,0 -24,0 Z" />
+    <path android:strokeColor="#FFC9372C" android:strokeWidth="3.2" android:strokeLineCap="round"
+        android:pathData="M42.5,48 Q54,52.5 65.5,48" />
+    <path android:strokeColor="#FFC9372C" android:strokeWidth="2" android:strokeLineCap="round"
+        android:pathData="M63,50 Q66,55 64.5,59" />
+    <path android:fillColor="#FFC9372C"
+        android:pathData="M54,58 L56.2,63.4 L62,64 L57.6,67.6 L59,73.2 L54,70.2 L49,73.2 L50.4,67.6 L46,64 L51.8,63.4 Z" />
+    <path android:fillColor="#FFFBF5E6" android:pathData="M47.5,29 a6.5,4.6 0 1,0 13,0 a6.5,4.6 0 1,0 -13,0 Z" />
+    <path android:strokeColor="#FFE2A83A" android:strokeWidth="1.8" android:strokeLineCap="round"
+        android:pathData="M54,19 L54,21.5 M42.5,25 L44.5,26 M65.5,25 L63.5,26 M44,35 L45.8,33.8 M64,35 L62.2,33.8" />
+</vector>
