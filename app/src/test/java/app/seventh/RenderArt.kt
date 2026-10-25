@@ -151,7 +151,7 @@ private fun Double.pow(e: Int) = Math.pow(this, e.toDouble())
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [34])
-class RenderLogo {
+class RenderArtLogo {
     @Test fun logo() {
         val ctx = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
         val n = 512
