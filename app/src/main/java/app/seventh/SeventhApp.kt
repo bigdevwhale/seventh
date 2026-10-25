@@ -10,7 +10,7 @@ import kotlin.random.Random
 class SeventhApp : Application() {
     /** One family per install; it outlives the activity so rotation or a dark screen never drops an open event. */
     val state: GameState by lazy {
-        GameState(SaveStore(this)).also { if (BuildConfig.DEMO && it.engine == null) it.adopt(demoFamily()) }
+        GameState(SaveStore(this), getSharedPreferences("seventh", MODE_PRIVATE)).also { if (BuildConfig.DEMO && it.engine == null) it.adopt(demoFamily()) }
     }
 
     /** The demo build starts on a Rus family ninety years and three generations in, line still alive. */

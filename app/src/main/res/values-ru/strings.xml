@@ -80,5 +80,23 @@
     <string name="where_begins">Где начнётся род</string>
     <string name="where_note">От земли зависят имена, сословия, история за окном и сам рисунок игры.</string>
     <string name="soon">скоро</string>
+    <string name="settings">Настройки</string>
+    <string name="language">Язык</string>
+    <string name="language_note">Текст уже начатого рода остаётся на языке, на котором он начат: имена, места, летопись.</string>
+    <string name="game">Игра</string>
+    <string name="show_intro">Показать вступление</string>
+    <string name="community">Сообщество</string>
+    <string name="community_note">Игра делается вместе с теми, кто в неё играет. Всё идёт через бота StillCraft в Telegram.</string>
+    <string name="c_bug">Сообщить о баге</string>
+    <string name="c_bug_sub">что сломалось и как повторить</string>
+    <string name="c_idea">Предложить идею</string>
+    <string name="c_idea_sub">событие, земля, функция</string>
+    <string name="c_follow">Подписаться на обновления</string>
+    <string name="c_follow_sub">бот напишет, когда выйдет версия</string>
+    <string name="c_chat">Чат StillCraft</string>
+    <string name="c_chat_sub">все приложения и люди</string>
+    <string name="about">Об игре</string>
+    <string name="about_text">Земель: %1$d, событий: %2$d, все картинки нарисованы кодом. Без рекламы, без аккаунта, без интернета.</string>
+    <string name="about_version">Версия %1$s · шрифты Ruslan Display, Kurale, Alegreya и Zen Old Mincho (OFL) · исходники на GitHub</string>
     <string name="lang_other">English</string>
 </resources>

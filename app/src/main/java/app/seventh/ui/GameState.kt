@@ -20,6 +20,7 @@ import java.util.concurrent.Executors
 sealed class Sheet {
     data object None : Sheet()
     data object Lands : Sheet()
+    data object Onboarding : Sheet()
     data object Intro : Sheet()
     class Event(val occ: Occ, val since: Since, val text: String, val opts: List<Opt>) : Sheet() {
         var phase by mutableStateOf<Phase>(Phase.Choose)
@@ -43,7 +44,7 @@ sealed class Phase {
 }
 
 /** The family in play and what is on screen; the engine is mutable, so [rev] is bumped to redraw after every move. */
-class GameState(private val store: SaveStore) {
+class GameState(private val store: SaveStore, private val prefs: android.content.SharedPreferences? = null) {
     var engine by mutableStateOf<Engine?>(null)
         private set
     var rev by mutableIntStateOf(0)
@@ -55,7 +56,18 @@ class GameState(private val store: SaveStore) {
 
     init {
         val g = store.load()
-        if (g != null) engine = Engine(g) else sheet = Sheet.Lands
+        if (g != null) engine = Engine(g) else sheet = if (prefs != null && !prefs.getBoolean("onboarded", false)) Sheet.Onboarding else Sheet.Lands
+    }
+
+    /** First-game hints left to show on events. */
+    var tips by mutableIntStateOf(prefs?.getInt("tips", 3) ?: 0)
+        private set
+
+    fun tipShown() { if (tips > 0) { tips--; prefs?.edit()?.putInt("tips", tips)?.apply() } }
+
+    fun onboarded() {
+        prefs?.edit()?.putBoolean("onboarded", true)?.apply()
+        sheet = if (engine == null || engine?.g?.over == true) Sheet.Lands else Sheet.None
     }
 
     val e: Engine get() = engine!!
@@ -93,6 +105,7 @@ class GameState(private val store: SaveStore) {
     }
 
     fun choose(ev: Sheet.Event, o: Opt) {
+        tipShown()
         if (o.roll == null) {
             ev.phase = Phase.Done(e.choose(ev.occ, o))
             touch()

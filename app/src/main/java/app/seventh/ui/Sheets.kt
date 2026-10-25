@@ -67,6 +67,7 @@ fun SheetHost(st: GameState) {
     val s = st.sheet
     if (s == Sheet.None) return
     if (s == Sheet.Lands) { LandsScreen(st); return }
+    if (s == Sheet.Onboarding) { OnboardingScreen(st); return }
     val P = LocalPal.current
     Box(Modifier.fillMaxSize().background(Color(0xB8140C08)).clickable(remember { MutableInteractionSource() }, null) {}, contentAlignment = Alignment.TopCenter) {
         Column(Modifier.fillMaxSize().verticalScroll(remember(s) { ScrollState(0) }).systemBarsPadding().padding(horizontal = 10.dp, vertical = 14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -84,9 +85,9 @@ fun SheetHost(st: GameState) {
                     Sheet.Intro -> Intro(st)
                     is Sheet.Event -> EventSheet(st, s)
                     is Sheet.Succ -> SuccSheet(st, s)
-                    is Sheet.Quiet -> { Kick("${st.e.g.year}"); Title(stringResource(R.string.quiet_years)); SinceBox(st.e, s.since); Btn(stringResource(R.string.go_on), Modifier.fillMaxWidth()) { st.close() } }
+                    is Sheet.Quiet -> { Kick("${st.e.g.year}"); SheetTitle(stringResource(R.string.quiet_years)); SinceBox(st.e, s.since); Btn(stringResource(R.string.go_on), Modifier.fillMaxWidth()) { st.close() } }
                     is Sheet.Card -> PersonCard(st, s)
-                    Sheet.Menu -> Menu(st)
+                    Sheet.Menu -> SettingsSheet(st)
                     is Sheet.HowTo -> HowTo(st)
                     Sheet.Victory -> Victory(st)
                     Sheet.Over -> Over(st)
@@ -104,7 +105,7 @@ private fun Kick(t: String) {
 }
 
 @Composable
-private fun Title(t: String) {
+fun SheetTitle(t: String) {
     val P = LocalPal.current
     Text(t, Modifier.fillMaxWidth().padding(top = 4.dp), style = P.d(26.sp), textAlign = TextAlign.Center)
     Box(Modifier.fillMaxWidth().padding(top = 7.dp, bottom = 10.dp), contentAlignment = Alignment.Center) { Orn(Modifier.widthIn(max = 110.dp), 6.dp) }
@@ -134,7 +135,7 @@ private fun EventSheet(st: GameState, s: Sheet.Event) {
     val occ = s.occ
     val h = occ.h
     Kick("${e.g.year} · ${e.fullName(h)}, ${e.yrs(e.age(h))}")
-    Title(occ.ev.t)
+    SheetTitle(occ.ev.t)
     SinceBox(e, s.since)
     SceneView(e.g.land, occ.ev.sc, e.scene(h, occ.x))
     Gap(10.dp)
@@ -142,6 +143,13 @@ private fun EventSheet(st: GameState, s: Sheet.Event) {
     Gap(12.dp)
     when (val ph = s.phase) {
         Phase.Choose -> {
+            if (st.tips > 0) {
+                Column(Modifier.fillMaxWidth().padding(bottom = 10.dp).background(P.mid.copy(alpha = .5f), RoundedCornerShape(6.dp)).border(1.5.dp, P.ochre, RoundedCornerShape(6.dp)).clickable { st.tipShown() }.padding(horizontal = 11.dp, vertical = 8.dp)) {
+                    Para(t("**Подсказка.** Процент — шанс вытянуть белый боб: чем выше, тем лучше. «Без жребия» — исход известен. «Камень на душу» — поступок против нрава.",
+                        "**A tip.** The percentage is the chance of a white bean: the higher the better. “No draw” means the outcome is certain. “A stone on the soul” means acting against one's temper."), P.b(14.sp))
+                    Text(t("нажмите, чтобы скрыть", "tap to hide"), style = P.tiny)
+                }
+            }
             var anyRoll = false
             for (o in s.opts) {
                 val sinT = e.sinTrait(o, h)
@@ -258,7 +266,7 @@ private fun SuccSheet(st: GameState, s: Sheet.Succ) {
     val d = s.s.dead
     Kick("${e.g.year}")
     SinceBox(e, s.since)
-    Title(if (d.monk) t(e.sx(d, "Ушёл от мира", "Ушла от мира"), "Left the world") else t("Преставил" + e.sx(d, "ся", "ась"), "Gone to God"))
+    SheetTitle(if (d.monk) t(e.sx(d, "Ушёл от мира", "Ушла от мира"), "Left the world") else t("Преставил" + e.sx(d, "ся", "ась"), "Gone to God"))
     SceneView(e.g.land, "plague", e.scene(d))
     Gap(10.dp)
     Para("**${e.fullName(d)}**, ${d.born}–${if (d.monk) "…" else "${d.died}, ${d.cause}"}.")
@@ -318,7 +326,7 @@ private fun Intro(st: GameState) {
     val e = st.e
     val f = e.g.people.getValue(e.g.founder)
     Kick(stringResource(R.string.lot_cast))
-    Title(stringResource(R.string.app_name))
+    SheetTitle(stringResource(R.string.app_name))
     SceneView(e.g.land, e.land.introScene, e.scene(f))
     Gap(10.dp)
     for (p in e.land.intro(e, f) + listOf(t("Доведите кровь до [[седьмого колена]] — и проклятие спадёт. Умрёт последний в роду бездетным — род пресечётся.", "Carry the blood to the [[seventh generation]] and the curse falls away. If the last of the line dies childless, the family ends."),
@@ -331,7 +339,7 @@ private fun Intro(st: GameState) {
 
 @Composable
 private fun HowTo(st: GameState) {
-    Title(stringResource(R.string.how_to))
+    SheetTitle(stringResource(R.string.how_to))
     for (l in listOf(
         t("**Цель** — довести кровь до VII колена. Колено — это поколение: дети главы — следующее колено.", "**The aim** is to carry the blood to generation VII. The head's children are the next generation."),
         t("**«Жить дальше»** проматывает годы, пока не случится событие. Рождаются и умирают люди — это видно в сводке.", "**Live on** runs the years until something happens. People are born and die; the summary shows who."),
@@ -345,31 +353,11 @@ private fun HowTo(st: GameState) {
 }
 
 @Composable
-private fun Menu(st: GameState) {
-    val P = LocalPal.current
-    var confirm by remember { mutableStateOf(false) }
-    Title(stringResource(R.string.menu))
-    Text(stringResource(R.string.menu_note), style = P.text)
-    Gap(12.dp)
-    Btn(stringResource(R.string.how_to), Modifier.fillMaxWidth()) { st.sheet = Sheet.HowTo(Sheet.Menu) }
-    Gap(8.dp)
-    Btn(stringResource(R.string.lang_other), Modifier.fillMaxWidth()) {
-        st.close()
-        androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(androidx.core.os.LocaleListCompat.forLanguageTags(if (app.seventh.domain.Lang.ru) "en" else "ru"))
-    }
-    Gap(8.dp)
-    if (!confirm) Btn(stringResource(R.string.new_lot), Modifier.fillMaxWidth()) { if (st.e.g.over) st.sheet = Sheet.Lands else confirm = true }
-    else Btn(stringResource(R.string.new_lot_confirm), Modifier.fillMaxWidth(), big = true) { st.sheet = Sheet.Lands }
-    Gap(8.dp)
-    Btn(stringResource(R.string.close), Modifier.fillMaxWidth()) { st.close() }
-}
-
-@Composable
 private fun Victory(st: GameState) {
     val e = st.e
     val h = e.h
     Kick("${e.g.year}")
-    Title(stringResource(R.string.app_name))
+    SheetTitle(stringResource(R.string.app_name))
     SceneView(e.g.land, "dawn", e.scene(h, family = e.house().take(5)))
     Gap(10.dp)
     Para(t("${h.name} — седьм${e.sx(h, "ой", "ая")} в роду от основателя. Утром на пороге нашли красную нитку, перекушенную пополам.", "${h.name} is the seventh generation from the founder. In the morning a red thread was found on the doorstep, bitten in two.")); Gap(8.dp)
@@ -385,7 +373,7 @@ private fun Over(st: GameState) {
     val e = st.e
     val d = e.h
     Kick("${e.g.year}")
-    Title(stringResource(R.string.line_ended))
+    SheetTitle(stringResource(R.string.line_ended))
     SceneView(e.g.land, "plague", e.scene(d))
     Gap(10.dp)
     Para(e.g.overTxt); Gap(8.dp)
@@ -410,9 +398,9 @@ private fun LandsScreen(st: GameState) {
         LandCard("ital", t("Италия", "Italy"), "1450 — 1750", t("фреска", "fresco"), t("Гильдии, чума, кондотьеры, долги у банкиров.", "Guilds, plague, condottieri, debts to bankers."), false),
     )
     Box(Modifier.fillMaxSize().background(Color(0xFF1F1712)), contentAlignment = Alignment.TopCenter) {
-        Column(Modifier.widthIn(max = 520.dp).fillMaxSize().background(P.bg).verticalScroll(rememberScrollState()).systemBarsPadding().padding(12.dp)) {
+        Column(Modifier.widthIn(max = 520.dp).fillMaxSize().systemBarsPadding().background(P.bg).verticalScroll(rememberScrollState()).padding(12.dp)) {
             Kick(stringResource(R.string.new_family))
-            Title(stringResource(R.string.where_begins))
+            SheetTitle(stringResource(R.string.where_begins))
             Para(stringResource(R.string.where_note))
             Gap(12.dp)
             for (l in lands) SeventhTheme(palOf(l.id)) {

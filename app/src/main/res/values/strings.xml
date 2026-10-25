@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Seventh Generation</string>
-    <string name="new_lot">New lot</string>
+    <string name="new_lot">New family</string>
     <string name="new_lot_confirm">Yes, start a new family</string>
     <string name="live_on">Live on ▸</string>
     <string name="live_on_sub">the years run until something happens</string>
@@ -80,5 +80,23 @@
     <string name="where_begins">Where the family begins</string>
     <string name="where_note">The land decides the names, the estates, the history outside the window and the very drawing of the game.</string>
     <string name="soon">soon</string>
+    <string name="settings">Settings</string>
+    <string name="language">Language</string>
+    <string name="language_note">The text of a family already in play stays in the language it began in: names, places, the chronicle.</string>
+    <string name="game">Game</string>
+    <string name="show_intro">Show the introduction</string>
+    <string name="community">Community</string>
+    <string name="community_note">The game is made together with the people who play it. It all goes through the StillCraft bot on Telegram.</string>
+    <string name="c_bug">Report a bug</string>
+    <string name="c_bug_sub">what broke and how to repeat it</string>
+    <string name="c_idea">Suggest an idea</string>
+    <string name="c_idea_sub">an event, a land, a feature</string>
+    <string name="c_follow">Follow updates</string>
+    <string name="c_follow_sub">the bot writes when a version is out</string>
+    <string name="c_chat">StillCraft chat</string>
+    <string name="c_chat_sub">all the apps and people</string>
+    <string name="about">About the game</string>
+    <string name="about_text">%1$d lands and %2$d events, every picture drawn in code. No ads, no account, no internet.</string>
+    <string name="about_version">Version %1$s · Ruslan Display, Kurale, Alegreya and Zen Old Mincho fonts (OFL) · source on GitHub</string>
     <string name="lang_other">Русский язык</string>
 </resources>

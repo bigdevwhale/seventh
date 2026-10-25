@@ -71,6 +71,8 @@ abstract class ScreensBase(private val land: String, private val ru: Boolean = t
     @Test fun lands() = shot("$land${if (ru) "" else "-en"}-lands", state()) { sheet = Sheet.Lands }
     @Test fun intro() = shot("$land${if (ru) "" else "-en"}-0-intro", GameState(SaveStore(ApplicationProvider.getApplicationContext()))) { newGame(land) }
     @Test fun home() = both("1-home")
+    @Test fun settings() = both("9-settings") { sheet = Sheet.Menu }
+    @Test fun onboarding() = both("00-onboarding") { sheet = Sheet.Onboarding }
     @Test fun event() = both("2-event") { openEvent(true) }
     @Test fun bag() = both("3-bag") { openEvent(true); val s = sheet as Sheet.Event; choose(s, s.opts.first { it.roll != null && it.cost <= e.g.money }) }
     @Test fun result() = both("4-result") { openEvent(true); val s = sheet as Sheet.Event; val o = s.opts.first { it.roll != null && it.cost <= e.g.money }; choose(s, o); s.phase = Phase.Done(e.draw(s.occ, o, e.beans(e.rollInfo(o, s.occ))).third) }
