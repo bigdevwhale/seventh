@@ -341,7 +341,7 @@ class Engine(val g: Game, val rnd: Random = Random.Default) {
         var r = rnd.nextDouble() * pool.sumOf { it.first.w }
         for ((e, f) in pool) {
             r -= e.w
-            if (r <= 0) { g.recent.add(e.id); if (g.recent.size > 14) g.recent.removeAt(0); return Occ(e, hd, f.x, f.s) }
+            if (r <= 0) { g.recent.add(e.id); if (g.recent.size > 24) g.recent.removeAt(0); return Occ(e, hd, f.x, f.s) }
         }
         return null
     }

@@ -192,7 +192,7 @@ object Japan : Land("edo") {
                         fx = { g.grudge = null; g.hex = g.year + 6; t("${x.name} ушл${sx(x, "", "а")}, прокляв вас у ворот. В мешке с бобами на шесть лет прибавился второй красный.", "${x.name} left, cursing you at the gate. For six years the bag of beans holds a second red one.") }),
                 )
             }),
-        Event("dream", "dream", Tx("Сон", "A Dream"), cond = { val n = g.nakaz; fire(n != null && !n.done && g.year - n.y >= 6 && g.year - (n.nag ?: n.y) >= 5 && chance(.4)) },
+        Event("dream", "dream", Tx("Сон", "A Dream"), cond = { fire(dreamDue()) },
             txt = { val n = g.nakaz!!; n.nag = g.year
                 pick(listOf(
                     t("Снится покойный предок — ${n.by}. Сидит у домашнего алтаря, смотрит с укором: «${n.t}». И уходит, не оглядываясь.", "You dream of ${n.by}, long dead. ${n.by} sits by the house altar and looks at you in reproach: “${n.t}.” Then gets up and goes, without looking back."),
